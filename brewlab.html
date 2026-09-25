@@ -1,0 +1,3018 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#F7F4EF">
+<meta name="description" content="麦工坊 BrewLab —— 专业啤酒配方开发平台：糖化提取、苦度、色度、发酵度实时计算，国产麦芽/酒花/酵母原料库与国产替代建议。">
+<title>麦工坊 BrewLab · 啤酒配方开发平台</title>
+<style>
+/* ==========================================================================
+   麦工坊 BrewLab  ·  视觉系统
+   ========================================================================== */
+:root{
+  --bg:#F6F3ED;
+  --bg-grad:radial-gradient(1200px 600px at 12% -8%,#FFF9EE 0%,rgba(255,249,238,0) 62%),
+            radial-gradient(900px 500px at 96% 4%,#F1F5EE 0%,rgba(241,245,238,0) 58%);
+  --surface:#FFFFFF;
+  --surface-2:#FBF9F4;
+  --surface-3:#F4F0E7;
+  --border:#E7E0D3;
+  --border-2:#D8CFBD;
+  --text:#2A2119;
+  --text-2:#6C5F4E;
+  --text-3:#9C8E7B;
+  --amber:#C07E1A;        --amber-d:#9A6412;   --amber-l:#F6E6C8;  --amber-bg:#FFF7E8;
+  --hop:#47734A;          --hop-d:#34583A;     --hop-l:#DCEBDA;    --hop-bg:#EEF6EC;
+  --copper:#B4552A;       --copper-l:#F6DFD2;
+  --wheat:#D9A441;
+  --ok:#3C8A58;  --ok-bg:#EAF6EE;
+  --warn:#C8871A; --warn-bg:#FDF4E3;
+  --bad:#BF4436; --bad-bg:#FBEDEA;
+  --info:#41678F; --info-bg:#EAF1F8;
+  --shadow-1:0 1px 2px rgba(64,48,28,.05), 0 4px 14px -6px rgba(64,48,28,.10);
+  --shadow-2:0 2px 6px rgba(64,48,28,.07), 0 18px 40px -22px rgba(64,48,28,.28);
+  --r-s:8px; --r-m:12px; --r-l:16px; --r-xl:22px;
+  --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB",
+         "Microsoft YaHei UI","Microsoft YaHei","Source Han Sans SC","Noto Sans CJK SC",sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--sans);color:var(--text);background:var(--bg);
+  background-image:var(--bg-grad);background-attachment:fixed;
+  font-size:14px;line-height:1.6;
+  font-variant-numeric:tabular-nums;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+h1,h2,h3,h4{margin:0;font-weight:700;letter-spacing:-.01em}
+button,input,select{font-family:inherit;font-size:inherit;color:inherit}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:#D9D0C0;border-radius:9px;border:2px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:#BFB3A0;background-clip:padding-box}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ---------------- 顶栏 ---------------- */
+.topbar{
+  position:sticky;top:0;z-index:60;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  padding:11px 20px;
+  background:rgba(246,243,237,.86);
+  backdrop-filter:saturate(180%) blur(14px);
+  -webkit-backdrop-filter:saturate(180%) blur(14px);
+  border-bottom:1px solid var(--border);
+}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.brand__mark{
+  width:38px;height:38px;flex:0 0 38px;border-radius:11px;
+  background:linear-gradient(150deg,#E0A33A,#B4661F 68%,#8E4A16);
+  box-shadow:0 3px 10px -3px rgba(150,90,20,.5),inset 0 1px 0 rgba(255,255,255,.42);
+  display:grid;place-items:center;
+}
+.brand__mark svg{width:22px;height:22px;display:block}
+.brand__txt{display:flex;flex-direction:column;min-width:0}
+.brand__name{font-size:16.5px;font-weight:800;letter-spacing:.02em;line-height:1.15}
+.brand__name em{font-style:normal;color:var(--amber-d);font-weight:600;font-size:12.5px;letter-spacing:.06em;margin-left:5px}
+.brand__sub{font-size:11px;color:var(--text-3);letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar__spacer{flex:1 1 auto}
+.topbar__actions{display:flex;gap:8px;flex-wrap:wrap}
+.topbar__stat{
+  display:flex;align-items:center;gap:8px;padding:5px 12px;border-radius:999px;
+  background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow-1);
+  font-size:12px;color:var(--text-2);white-space:nowrap;
+}
+.topbar__stat b{color:var(--text);font-size:13px}
+
+/* ---------------- 按钮 ---------------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  min-height:36px;padding:7px 14px;border-radius:10px;cursor:pointer;
+  border:1px solid var(--border-2);background:var(--surface);color:var(--text);
+  font-size:13px;font-weight:600;white-space:nowrap;
+  transition:transform .12s cubic-bezier(.3,.9,.4,1),box-shadow .15s,background .15s,border-color .15s;
+  box-shadow:0 1px 1px rgba(64,48,28,.04);
+}
+.btn:hover{background:#FFFDF8;border-color:var(--amber);color:var(--amber-d);box-shadow:var(--shadow-1)}
+.btn:active{transform:translateY(1px) scale(.985)}
+.btn:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.btn--primary{background:linear-gradient(168deg,#D2912A,#A9660F);border-color:#97600F;color:#fff;box-shadow:0 2px 8px -3px rgba(150,95,20,.6)}
+.btn--primary:hover{background:linear-gradient(168deg,#DC9C33,#B06E13);color:#fff}
+.btn--ghost{background:transparent;border-color:transparent;color:var(--text-2);box-shadow:none}
+.btn--ghost:hover{background:var(--surface-3);color:var(--text)}
+.btn--danger-ghost{background:transparent;border-color:transparent;color:var(--bad);box-shadow:none}
+.btn--danger-ghost:hover{background:var(--bad-bg);border-color:transparent;color:var(--bad)}
+.btn--sm{min-height:30px;padding:4px 10px;font-size:12px;border-radius:8px}
+.btn--icon{width:30px;height:30px;min-height:30px;padding:0;border-radius:8px}
+.btn--block{width:100%}
+
+/* ---------------- 页面骨架 ---------------- */
+.shell{max-width:1720px;margin:0 auto;padding:18px 20px 64px}
+.grid{
+  display:grid;gap:16px;
+  grid-template-columns:296px minmax(0,1fr) 352px;
+  align-items:start;
+}
+.col{display:flex;flex-direction:column;gap:16px;min-width:0}
+
+/* ---------------- 卡片 ---------------- */
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-l);
+  box-shadow:var(--shadow-1);overflow:hidden;
+}
+.card__hd{
+  display:flex;align-items:center;gap:9px;padding:11px 14px;
+  border-bottom:1px solid var(--border);background:linear-gradient(180deg,#FFFDF9,var(--surface-2));
+}
+.card__hd h3{font-size:13.5px;letter-spacing:.01em;display:flex;align-items:center;gap:7px}
+.card__hd .ico{width:17px;height:17px;flex:0 0 17px;color:var(--amber)}
+.card__hd .hint{font-size:11px;color:var(--text-3);font-weight:500}
+.card__hd .spacer{flex:1}
+.card__bd{padding:13px 14px}
+.card__bd--tight{padding:9px 11px}
+.card__ft{padding:10px 14px;border-top:1px solid var(--border);background:var(--surface-2)}
+.sec-hd{
+  display:flex;align-items:center;gap:8px;margin:0 0 9px;
+  font-size:11.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3);
+}
+.sec-hd::after{content:"";flex:1;height:1px;background:var(--border)}
+
+/* ---------------- 表单控件 ---------------- */
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field__label{font-size:11.5px;font-weight:600;color:var(--text-2);display:flex;align-items:center;gap:5px}
+.field__label .unit{color:var(--text-3);font-weight:500;font-size:10.5px}
+.field__note{font-size:10.5px;color:var(--text-3);line-height:1.45}
+.row{display:grid;gap:10px}
+.row--2{grid-template-columns:1fr 1fr}
+.row--3{grid-template-columns:1fr 1fr 1fr}
+.inp,.sel{
+  width:100%;min-height:38px;padding:7px 11px;border-radius:10px;
+  border:1px solid var(--border-2);background:var(--surface);color:var(--text);
+  font-weight:600;font-size:13.5px;
+  transition:border-color .15s,box-shadow .15s,background .15s;
+}
+.inp:hover,.sel:hover{border-color:#C7BCA6}
+.inp:focus,.sel:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 3px rgba(192,126,26,.15);background:#FFFDF7}
+.inp--plain{font-weight:600}
+.inp[type=number]{-moz-appearance:textfield}
+.inp[type=number]::-webkit-outer-spin-button,
+.inp[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.sel{
+  appearance:none;-webkit-appearance:none;padding-right:30px;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5l5-5' fill='none' stroke='%236C5F4E' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;background-size:11px;
+}
+.stepper{display:flex;align-items:center;gap:0;border:1px solid var(--border-2);border-radius:10px;overflow:hidden;background:var(--surface)}
+.stepper .inp{border:0;border-radius:0;text-align:center;min-height:36px;background:transparent}
+.stepper .inp:focus{box-shadow:none;background:#FFFDF7}
+.stepper button{
+  width:32px;min-height:36px;border:0;background:transparent;cursor:pointer;color:var(--text-2);
+  font-size:16px;font-weight:600;display:grid;place-items:center;transition:background .12s,color .12s;
+}
+.stepper button:hover{background:var(--amber-bg);color:var(--amber-d)}
+
+/* 滑块 */
+input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:22px;background:transparent;cursor:pointer;
+}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:6px;background:linear-gradient(90deg,var(--amber-l),var(--surface-3));border:1px solid var(--border)}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:18px;height:18px;border-radius:50%;margin-top:-7px;
+  background:linear-gradient(160deg,#fff,#F3E4C6);border:2px solid var(--amber);
+  box-shadow:0 1px 4px rgba(120,80,20,.32);transition:transform .12s;
+}
+input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.12)}
+input[type=range]::-moz-range-track{height:6px;border-radius:6px;background:var(--surface-3);border:1px solid var(--border)}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid var(--amber)}
+
+/* 分段控件 */
+.seg{display:flex;padding:3px;gap:3px;background:var(--surface-3);border-radius:11px;border:1px solid var(--border)}
+.seg button{
+  flex:1;min-height:30px;border:0;border-radius:8px;background:transparent;cursor:pointer;
+  font-size:12px;font-weight:650;color:var(--text-2);white-space:nowrap;
+  transition:background .15s,color .15s,box-shadow .15s;
+}
+.seg button:hover{color:var(--text)}
+.seg button[aria-pressed=true]{background:var(--surface);color:var(--amber-d);box-shadow:0 1px 3px rgba(64,48,28,.14)}
+
+/* 复选框 */
+.chk{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12.5px;color:var(--text-2);user-select:none}
+.chk input{appearance:none;-webkit-appearance:none;width:17px;height:17px;flex:0 0 17px;margin:0;border-radius:5px;border:1.6px solid var(--border-2);background:var(--surface);cursor:pointer;position:relative;transition:.15s}
+.chk input:checked{background:var(--amber);border-color:var(--amber)}
+.chk input:checked::after{content:"";position:absolute;left:5px;top:2px;width:5px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(42deg)}
+
+/* ---------------- 徽章 / 状态 ---------------- */
+.badge{
+  display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;
+  font-size:10.5px;font-weight:700;letter-spacing:.02em;white-space:nowrap;line-height:1.65;
+}
+.badge--ok{background:var(--ok-bg);color:var(--ok)}
+.badge--warn{background:var(--warn-bg);color:var(--warn)}
+.badge--bad{background:var(--bad-bg);color:var(--bad)}
+.badge--info{background:var(--info-bg);color:var(--info)}
+.badge--amber{background:var(--amber-bg);color:var(--amber-d)}
+.badge--hop{background:var(--hop-bg);color:var(--hop-d)}
+.badge--mute{background:var(--surface-3);color:var(--text-2)}
+.badge--cn{background:linear-gradient(150deg,#FCEBEA,#F7DAD7);color:#A83226}
+.dot{width:7px;height:7px;border-radius:50%;flex:0 0 7px;background:currentColor;box-shadow:0 0 0 2.5px color-mix(in srgb,currentColor 18%,transparent)}
+
+/* ---------------- 指标仪表盘 ---------------- */
+.metric-hero{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;
+}
+.metric{
+  position:relative;padding:10px 11px 11px;border-radius:var(--r-m);
+  background:var(--surface-2);border:1px solid var(--border);overflow:hidden;
+  transition:border-color .2s,background .2s;
+}
+.metric--wide{grid-column:span 2}
+.metric__top{display:flex;align-items:baseline;justify-content:space-between;gap:6px}
+.metric__k{font-size:10.5px;font-weight:700;letter-spacing:.06em;color:var(--text-3);text-transform:uppercase}
+.metric__v{
+  font-size:25px;font-weight:800;letter-spacing:-.025em;line-height:1.12;
+  display:flex;align-items:baseline;gap:3px;
+  font-variant-numeric:tabular-nums;
+}
+.metric__v .u{font-size:11.5px;font-weight:600;color:var(--text-3);letter-spacing:0}
+.metric__sub{font-size:10.5px;color:var(--text-3);margin-top:1px;line-height:1.4}
+.metric__flag{position:absolute;top:9px;right:9px;width:8px;height:8px;border-radius:50%}
+.metric[data-st=ok]{background:var(--ok-bg);border-color:#CBE6D4}
+.metric[data-st=ok] .metric__v{color:var(--ok)}
+.metric[data-st=warn]{background:var(--warn-bg);border-color:#EDD9AF}
+.metric[data-st=warn] .metric__v{color:var(--warn)}
+.metric[data-st=bad]{background:var(--bad-bg);border-color:#EEC9C3}
+.metric[data-st=bad] .metric__v{color:var(--bad)}
+.metric[data-st=ok] .metric__flag{background:var(--ok);box-shadow:0 0 0 3px rgba(60,138,88,.16)}
+.metric[data-st=warn] .metric__flag{background:var(--warn);box-shadow:0 0 0 3px rgba(200,135,26,.16)}
+.metric[data-st=bad] .metric__flag{background:var(--bad);box-shadow:0 0 0 3px rgba(191,68,54,.16)}
+.metric[data-st=ok] .metric__k,.metric[data-st=ok] .metric__sub{color:#4E7A5F}
+.metric[data-st=warn] .metric__k,.metric[data-st=warn] .metric__sub{color:#8D6A1E}
+.metric[data-st=bad] .metric__k,.metric[data-st=bad] .metric__sub{color:#93453A}
+
+/* 目标区间条 */
+.gauge{margin-top:8px}
+.gauge__track{
+  position:relative;height:6px;border-radius:6px;background:var(--surface-3);
+  border:1px solid var(--border);overflow:visible;
+}
+.gauge__zone{
+  position:absolute;top:-1px;height:6px;border-radius:6px;
+  background:linear-gradient(90deg,#B9DCC5,#8FCBA6);opacity:.95;
+}
+.gauge__mark{
+  position:absolute;top:-4px;width:3px;height:14px;border-radius:3px;background:var(--text);
+  box-shadow:0 0 0 2px rgba(255,255,255,.95);transition:left .3s cubic-bezier(.3,.9,.4,1);
+}
+.gauge__scale{display:flex;justify-content:space-between;font-size:9.5px;color:var(--text-3);margin-top:3px}
+.gauge__cap{display:flex;justify-content:space-between;font-size:10.5px;color:var(--text-3);margin-top:2px}
+
+/* 色度展示 */
+.colorchip{
+  height:52px;border-radius:var(--r-m);border:1px solid var(--border);
+  box-shadow:inset 0 0 22px rgba(0,0,0,.14),0 1px 3px rgba(64,48,28,.1);
+  position:relative;overflow:hidden;transition:background .35s;
+}
+.colorchip__lbl{
+  position:absolute;left:9px;bottom:7px;font-size:11px;font-weight:700;color:#fff;
+  text-shadow:0 1px 4px rgba(0,0,0,.55);letter-spacing:.03em;
+}
+.colorbar{display:flex;height:9px;border-radius:6px;overflow:hidden;border:1px solid var(--border);margin-top:9px}
+.colorbar i{flex:1}
+
+/* ---------------- 配方表 ---------------- */
+.rct{width:100%;border-collapse:separate;border-spacing:0;font-size:12.5px}
+.rct th{
+  position:sticky;top:0;z-index:2;
+  font-size:10.5px;font-weight:700;letter-spacing:.05em;color:var(--text-3);text-transform:uppercase;
+  text-align:left;padding:6px 7px;background:var(--surface-2);border-bottom:1px solid var(--border);white-space:nowrap;
+}
+.rct th.r{text-align:right}
+.rct th.c{text-align:center}
+.rct td{padding:4px 6px;border-bottom:1px solid #F2EDE3;vertical-align:middle}
+.rct tr:last-child td{border-bottom:0}
+.rct tr:hover td{background:#FDFBF6}
+.rct td.r{text-align:right;font-weight:650}
+.rct td.c{text-align:center}
+.rct .inp,.rct .sel{min-height:32px;padding:4px 8px;font-size:12.5px;border-radius:8px;border-color:#E4DCCB}
+.rct .inp[type=number]{text-align:right}
+.rct__name{min-width:132px}
+.rct__pct{
+  font-size:11px;font-weight:700;color:var(--amber-d);background:var(--amber-bg);
+  padding:1px 6px;border-radius:6px;white-space:nowrap;
+}
+.rct__num{font-variant-numeric:tabular-nums}
+.rct__del{opacity:.4;transition:opacity .15s}
+tr:hover .rct__del{opacity:1}
+.rct__ind{display:flex;align-items:center;gap:5px;min-width:0}
+.rct__ind i{width:9px;height:9px;border-radius:3px;flex:0 0 9px;border:1px solid rgba(0,0,0,.16)}
+.tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.totals{
+  display:flex;gap:14px;flex-wrap:wrap;padding:9px 14px;background:var(--surface-2);
+  border-top:1px solid var(--border);font-size:12px;color:var(--text-2);
+}
+.totals b{color:var(--text);font-weight:700}
+.empty{
+  padding:20px 14px;text-align:center;color:var(--text-3);font-size:12.5px;
+  border:1.5px dashed var(--border-2);border-radius:var(--r-m);background:var(--surface-2);
+}
+
+/* ---------------- 图表 ---------------- */
+.chart{width:100%;display:block;overflow:visible}
+.chart-wrap{position:relative}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;font-size:10.5px;color:var(--text-2)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:9px;height:9px;border-radius:3px;display:inline-block}
+
+/* 国产化环 */
+.ringwrap{display:flex;align-items:center;gap:14px}
+.ring{position:relative;flex:0 0 96px;width:96px;height:96px}
+.ring svg{display:block;transform:rotate(-90deg)}
+.ring__ctr{
+  position:absolute;inset:0;display:grid;place-items:center;text-align:center;line-height:1.05;
+}
+.ring__ctr b{font-size:21px;font-weight:800;letter-spacing:-.02em;display:block}
+.ring__ctr span{font-size:9.5px;color:var(--text-3);font-weight:600}
+
+/* 时间轴 */
+.tl{width:100%}
+
+/* ---------------- 提示 ---------------- */
+.alerts{display:flex;flex-direction:column;gap:7px}
+.alert{
+  display:flex;gap:9px;padding:9px 11px;border-radius:var(--r-m);font-size:12px;line-height:1.5;
+  border:1px solid transparent;animation:slideIn .28s cubic-bezier(.3,.9,.4,1);
+}
+@keyframes slideIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.alert__ico{flex:0 0 15px;width:15px;height:15px;margin-top:2px}
+.alert b{font-weight:700}
+.alert--ok{background:var(--ok-bg);border-color:#CBE6D4;color:#2F6E47}
+.alert--warn{background:var(--warn-bg);border-color:#EDD9AF;color:#8A6413}
+.alert--bad{background:var(--bad-bg);border-color:#EEC9C3;color:#93392F}
+.alert--info{background:var(--info-bg);border-color:#CFE0EF;color:#2F5378}
+.alert--cn{background:var(--amber-bg);border-color:#EDDCB6;color:#8A5F12}
+
+/* 替代建议行 */
+.swap{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px;
+  border:1px solid var(--border);border-radius:var(--r-m);background:var(--surface-2);font-size:12px;
+}
+.swap + .swap{margin-top:7px}
+.swap__arrow{color:var(--amber);font-weight:800}
+.swap__to{font-weight:700;color:var(--hop-d)}
+.swap__why{font-size:11px;color:var(--text-3);flex-basis:100%}
+
+/* 原料库列表 */
+.liblist{display:flex;flex-direction:column;gap:6px;max-height:none}
+.libsearch{display:flex;gap:8px;margin-bottom:9px}
+.libitem{
+  display:grid;grid-template-columns:1fr auto;gap:5px 10px;align-items:center;
+  padding:8px 10px;border:1px solid var(--border);border-radius:var(--r-m);
+  background:var(--surface);cursor:pointer;transition:border-color .15s,background .15s,transform .12s;
+}
+.libitem:hover{border-color:var(--amber);background:#FFFDF7;transform:translateX(2px)}
+.libitem__n{font-size:12.5px;font-weight:650;display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
+.libitem__meta{font-size:11px;color:var(--text-3);grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 10px}
+.libitem__meta em{font-style:normal;color:var(--text-2);font-weight:600}
+.libitem__add{font-size:18px;font-weight:400;color:var(--amber);line-height:1}
+
+/* 标签页 */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);padding:0 10px;background:var(--surface-2);overflow-x:auto}
+.tabs button{
+  min-height:38px;padding:0 13px;border:0;background:transparent;cursor:pointer;
+  font-size:12.5px;font-weight:650;color:var(--text-2);border-bottom:2.5px solid transparent;
+  transition:color .15s,border-color .15s;white-space:nowrap;
+}
+.tabs button:hover{color:var(--text)}
+.tabs button[aria-selected=true]{color:var(--amber-d);border-bottom-color:var(--amber)}
+.tabpanel[hidden]{display:none}
+
+/* Toast */
+#toast{
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(80px);
+  z-index:200;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;
+}
+.toast{
+  padding:10px 18px;border-radius:12px;background:rgba(42,33,25,.93);color:#fff;font-size:13px;font-weight:600;
+  box-shadow:0 10px 30px -10px rgba(0,0,0,.5);transition:transform .3s cubic-bezier(.3,.9,.4,1),opacity .3s;
+  opacity:0;transform:translateY(14px);backdrop-filter:blur(8px);max-width:min(86vw,420px);text-align:center;
+}
+.toast.on{opacity:1;transform:none}
+.toast b{color:#F5C468}
+
+/* 数字跳动 */
+@keyframes pop{0%{transform:scale(1)}35%{transform:scale(1.07)}100%{transform:scale(1)}}
+.pop{animation:pop .34s cubic-bezier(.3,.9,.4,1)}
+
+/* 帮助文本 */
+.hintlist{display:flex;flex-direction:column;gap:7px;font-size:12px;color:var(--text-2);line-height:1.55}
+.hintlist dt{font-weight:700;color:var(--text);font-size:12px}
+.hintlist dd{margin:1px 0 0}
+.hn{font-family:var(--mono);font-size:11.5px;background:var(--surface-3);padding:1px 5px;border-radius:5px;border:1px solid var(--border)}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px dashed #EDE7DB;font-size:12px}
+.kv:last-child{border-bottom:0}
+.kv span{color:var(--text-2)}
+.kv b{font-weight:700}
+
+/* 移动端折叠按钮 */
+.mobile-bar{display:none}
+.fab-toc{display:none}
+
+/* ==========================================================================
+   响应式：≥1440 桌面 / 1180-1439 紧凑 / 900-1179 两栏 / <900 单栏
+   ========================================================================== */
+@media (max-width:1519px){
+  .grid{grid-template-columns:274px minmax(0,1fr) 330px}
+}
+@media (max-width:1259px){
+  .grid{grid-template-columns:minmax(0,1fr) 330px}
+  .col--left{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:start}
+}
+@media (max-width:1019px){
+  .grid{grid-template-columns:minmax(0,1fr)}
+  .col--left{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .col--right{order:0}
+  .col--mid{order:1}
+  .col--left{order:2}
+}
+@media (max-width:719px){
+  body{font-size:13.5px}
+  .shell{padding:12px 12px 76px}
+  .topbar{padding:9px 12px;gap:9px}
+  .brand__mark{width:34px;height:34px;flex-basis:34px;border-radius:10px}
+  .brand__name{font-size:15px}
+  .brand__sub{display:none}
+  .topbar__actions .btn span{display:none}
+  .topbar__actions .btn{padding:0;width:36px}
+  .topbar__stat{display:none}
+  .grid{gap:12px}
+  .col--left{grid-template-columns:minmax(0,1fr)}
+  .metric-hero{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .metric__v{font-size:22px}
+  .card__bd{padding:12px}
+  .rct__name{min-width:110px}
+  .mobile-bar{
+    display:flex;position:fixed;left:0;right:0;bottom:0;z-index:80;
+    padding:6px 8px calc(6px + env(safe-area-inset-bottom));
+    gap:4px;background:rgba(246,243,237,.94);backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);border-top:1px solid var(--border);
+  }
+  .mobile-bar button{
+    flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
+    border:0;background:transparent;padding:6px 2px;border-radius:10px;cursor:pointer;
+    font-size:10.5px;font-weight:650;color:var(--text-3);
+  }
+  .mobile-bar button svg{width:19px;height:19px}
+  .mobile-bar button.on{color:var(--amber-d);background:var(--amber-bg)}
+  .seg button{font-size:11.5px}
+  .row--3{grid-template-columns:1fr 1fr}
+}
+@media (max-width:419px){
+  .row--2{grid-template-columns:1fr}
+  .metric-hero{grid-template-columns:minmax(0,1fr)}
+  .metric--wide{grid-column:span 1}
+}
+/* 酒花行：时间换算提示 / IBU 贡献 / 方式色条 */
+.cell-hint{font-size:9.5px;color:var(--text-3);text-align:center;line-height:1.3;margin-top:2px;white-space:nowrap;transition:color .2s}
+.cell-hint--warn{color:var(--bad);font-weight:700}
+.ibu-cell{display:inline-flex;flex-direction:column;align-items:center;gap:3px}
+.ibu-cell b{font-size:12.5px;font-weight:700;line-height:1;color:var(--hop-d)}
+.mini-bar{display:block;width:46px;height:3px;border-radius:3px;background:var(--surface-3);overflow:hidden}
+.mini-bar i{display:block;height:100%;border-radius:3px;transition:width .34s cubic-bezier(.3,.9,.4,1),background .2s}
+td.m-boil{box-shadow:inset 3px 0 0 #C8843C}
+td.m-whirl{box-shadow:inset 3px 0 0 #6E9D6A}
+td.m-dryhop{box-shadow:inset 3px 0 0 #8B79B0}
+td.m-first{box-shadow:inset 3px 0 0 #6E9DB4}
+td.m-boil .sel,td.m-whirl .sel,td.m-dryhop .sel,td.m-first .sel{background:var(--surface-2);border-color:#EDE7DB}
+.ibu-mix-wrap{padding:11px 14px 0}
+.ibu-mix{display:flex;height:10px;border-radius:6px;overflow:hidden;background:var(--surface-3);box-shadow:inset 0 0 0 1px var(--border)}
+.ibu-mix i{display:block;height:100%;transition:width .35s cubic-bezier(.3,.9,.4,1)}
+.ibu-mix i + i{box-shadow:inset 1px 0 0 rgba(255,255,255,.6)}
+.ibu-mix-legend{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:7px;font-size:10.5px;color:var(--text-2)}
+.ibu-mix-legend span{display:inline-flex;align-items:center;gap:5px}
+.ibu-mix-legend i{width:9px;height:9px;border-radius:3px;display:inline-block;flex:0 0 9px}
+.ibu-mix-legend b{color:var(--text);font-weight:700}
+.ibu-mix-total{margin-left:auto;color:var(--text-3)}
+.ibu-mix-total b{color:var(--hop-d);font-size:11.5px}
+.rct__ops{display:flex;gap:2px;justify-content:flex-end}
+
+/* 移动端表格优化 */
+.tbl-hint{display:none}
+.tbl-hint.is-on{display:block;font-size:10.5px;color:var(--text-3);padding:0 0 5px;text-align:right}
+@media (max-width:719px){
+  .rct th{width:auto!important;font-size:9.5px;padding:5px 3px;letter-spacing:.02em}
+  .rct td{padding:3px 3px}
+  .rct .inp,.rct .sel{min-height:31px;padding:3px 6px;font-size:11.5px;border-radius:7px}
+  .rct__name{min-width:104px}
+  .rct__pct{font-size:10px;padding:1px 4px}
+  .rct__del{width:26px;height:26px;min-height:26px}
+  /* 窄屏不再压缩列宽，改为横向滚动：保证输入框与按钮保持可点面积 */
+  #tblMalt{min-width:600px}
+  #tblSugar{min-width:540px}
+  #tblHop{min-width:700px}
+  .shell{padding-bottom:80px}
+}
+@media (max-width:1019px){
+  .col--left #sec-style{order:-1}
+}
+/* 页脚 */
+.foot{
+  margin-top:22px;padding:16px 18px;border-radius:var(--r-l);border:1px solid var(--border);
+  background:var(--surface-2);font-size:11.5px;color:var(--text-3);line-height:1.75;
+}
+.foot b{color:var(--text-2);font-weight:700}
+.foot__grid{display:grid;gap:4px 22px;grid-template-columns:1fr}
+@media (min-width:900px){ .foot__grid{grid-template-columns:1fr 1fr} }
+@media print{
+  .topbar,.mobile-bar,.btn,.topbar__actions,.foot{display:none!important}
+  body{background:#fff}
+  .card{box-shadow:none;break-inside:avoid}
+  .shell{max-width:none;padding:0}
+  .grid{grid-template-columns:1fr 1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="brand__mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#FFF6E4" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6.2 3.4h9.1c1 0 1.7.9 1.5 1.9l-.9 4.4c-.2 1-.4 1.6-.9 2.2-.5.6-.7 1.2-.5 2l1.1 5.4c.2 1-.6 1.9-1.6 1.9H8.2c-1 0-1.8-.9-1.6-1.9l1.1-5.4c.2-.8 0-1.4-.5-2-.5-.6-.7-1.2-.9-2.2l-.9-4.4c-.2-1 .5-1.9 1.5-1.9z"/>
+        <path d="M7.1 8.6h7.6"/><path d="M10 12.4h2.2"/>
+      </svg>
+    </div>
+    <div class="brand__txt">
+      <div class="brand__name">麦工坊<em>BrewLab</em></div>
+      <div class="brand__sub">啤酒配方开发平台 · 国产 / 进口原料双轨</div>
+    </div>
+  </div>
+  <div class="topbar__spacer"></div>
+  <div class="topbar__stat" id="topStat">
+    <span>配方 <b id="statRows">0</b> 项</span><span style="color:var(--border-2)">|</span>
+    <span>原料国产化 <b id="statLocal">—</b></span><span style="color:var(--border-2)">|</span>
+    <span>匹配度 <b id="statMatch">—</b></span>
+  </div>
+  <div class="topbar__actions">
+    <button class="btn" id="btnTemplate" type="button">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      <span>配方模板</span></button>
+    <button class="btn" id="btnExport" type="button">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 21h16"/></svg>
+      <span>导出</span></button>
+    <button class="btn btn--ghost btn--icon" id="btnReset" type="button" title="重置为默认配方" aria-label="重置">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="shell">
+<div class="grid">
+
+  <!-- ============ 左栏：批次 / 风格 / 水质 ============ -->
+  <div class="col col--left">
+
+    <section class="card" id="sec-batch">
+      <div class="card__hd">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V9.5L12 4l8 5.5V20"/><path d="M9 20v-6h6v6"/></svg>
+        <h3>批次参数</h3><span class="spacer"></span>
+        <span class="badge badge--mute" id="batchScale">20 L</span>
+      </div>
+      <div class="card__bd" style="display:flex;flex-direction:column;gap:11px">
+        <div class="row row--2">
+          <div class="field">
+            <label class="field__label" for="inVolume">成品体积 <span class="unit">L</span></label>
+            <div class="stepper">
+              <button type="button" data-step="-1" data-for="inVolume">−</button>
+              <input class="inp" id="inVolume" type="number" min="2" max="5000" step="1" value="20">
+              <button type="button" data-step="1" data-for="inVolume">+</button>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field__label" for="inEfficiency">糖化效率 <span class="unit">%</span></label>
+            <div class="stepper">
+              <button type="button" data-step="-1" data-for="inEfficiency">−</button>
+              <input class="inp" id="inEfficiency" type="number" min="40" max="100" step="1" value="72">
+              <button type="button" data-step="1" data-for="inEfficiency">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field__label"><span>糖化效率档位</span><span class="unit" id="effNote">家酿设备常规</span></div>
+          <input type="range" id="rgEfficiency" min="50" max="92" step="1" value="72">
+          <div class="gauge__scale"><span>50% 粗放</span><span>72% 常规</span><span>92% 高效</span></div>
+        </div>
+        <div class="row row--2">
+          <div class="field">
+            <label class="field__label" for="inBoil">煮沸时长 <span class="unit">min</span></label>
+            <input class="inp" id="inBoil" type="number" min="20" max="150" step="5" value="60">
+          </div>
+          <div class="field">
+            <label class="field__label" for="inEvap">蒸发强度 <span class="unit">%/h</span></label>
+            <input class="inp" id="inEvap" type="number" min="2" max="25" step="0.5" value="10">
+          </div>
+        </div>
+        <div class="row row--2">
+          <div class="field">
+            <label class="field__label" for="inRatio">糖化料水比 <span class="unit">L/kg</span></label>
+            <input class="inp" id="inRatio" type="number" min="2" max="6" step="0.1" value="3.2">
+          </div>
+          <div class="field">
+            <label class="field__label" for="inAbsorb">麦糟吸水 <span class="unit">L/kg</span></label>
+            <input class="inp" id="inAbsorb" type="number" min="0.5" max="1.4" step="0.05" value="0.85">
+          </div>
+        </div>
+        <div class="kv"><span>糖化投料量</span><b id="kGrain">—</b></div>
+        <div class="kv"><span>糖化用水</span><b id="kMashWater">—</b></div>
+        <div class="kv"><span>洗糟水（估算）</span><b id="kSparge">—</b></div>
+        <div class="kv"><span>煮沸前体积</span><b id="kPreboil">—</b></div>
+        <div class="kv"><span>总用水量</span><b id="kTotalWater">—</b></div>
+        <div class="kv"><span>湿麦糟产出（估算）</span><b id="kBsg">—</b></div>
+      </div>
+      <div class="card__ft">
+        <div class="field__note">湿麦糟按干投料量的 <b>3 倍</b> 经验估算（含水约 80%）——可作为后续麦糟综合利用的投料基准。</div>
+      </div>
+    </section>
+
+    <section class="card" id="sec-style">
+      <div class="card__hd">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.2"/><path d="M12 3.5v2.6M12 17.9v2.6M3.5 12h2.6M17.9 12h2.6"/></svg>
+        <h3>目标风格</h3>
+      </div>
+      <div class="card__bd" style="display:flex;flex-direction:column;gap:11px">
+        <div class="field">
+          <label class="field__label" for="selStyle">选择风格基准 <span class="unit">BJCP 2021</span></label>
+          <select class="sel" id="selStyle"></select>
+          <div class="field__note" id="styleDesc">—</div>
+        </div>
+        <div class="field">
+          <div class="field__label"><span>配方定位</span></div>
+          <div class="seg" id="segFamily" role="group">
+            <button type="button" data-fam="all" aria-pressed="true">全部</button>
+            <button type="button" data-fam="ale" aria-pressed="false">艾尔</button>
+            <button type="button" data-fam="lager" aria-pressed="false">拉格</button>
+            <button type="button" data-fam="special" aria-pressed="false">特色</button>
+          </div>
+        </div>
+        <div id="styleTargets" class="metric-hero" style="gap:7px"></div>
+      </div>
+    </section>
+
+    <section class="card" id="sec-water">
+      <div class="card__hd">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.2s6 6.2 6 10.1a6 6 0 0 1-12 0C6 9.4 12 3.2 12 3.2z"/></svg>
+        <h3>糖化用水</h3><span class="spacer"></span>
+        <span class="badge badge--mute" id="waterBadge">—</span>
+      </div>
+      <div class="card__bd" style="display:flex;flex-direction:column;gap:11px">
+        <div class="row row--2">
+          <div class="field">
+            <label class="field__label" for="inSO4">SO₄²⁻ <span class="unit">mg/L</span></label>
+            <input class="inp" id="inSO4" type="number" min="0" max="600" step="5" value="80">
+          </div>
+          <div class="field">
+            <label class="field__label" for="inCl">Cl⁻ <span class="unit">mg/L</span></label>
+            <input class="inp" id="inCl" type="number" min="0" max="600" step="5" value="60">
+          </div>
+        </div>
+        <div class="row row--2">
+          <div class="field">
+            <label class="field__label" for="inAlk">剩余碱度 <span class="unit">mg/L CaCO₃</span></label>
+            <input class="inp" id="inAlk" type="number" min="0" max="400" step="5" value="40">
+          </div>
+          <div class="field">
+            <label class="field__label" for="inCa">Ca²⁺ <span class="unit">mg/L</span></label>
+            <input class="inp" id="inCa" type="number" min="0" max="400" step="5" value="60">
+          </div>
+        </div>
+        <div class="kv"><span>氯硫比 Cl:SO₄</span><b id="kRatio">—</b></div>
+        <div class="kv"><span>糖化醪 pH（估算）</span><b id="kPh">—</b></div>
+        <div class="field__note" id="waterNote">—</div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ============ 中栏：配方 + 工艺 + 原料库 ============ -->
+  <div class="col col--mid">
+
+    <section class="card" id="sec-grist">
+      <div class="card__hd">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V8"/><path d="M12 8c0-3 2-5 5-5 0 3-2 5-5 5z"/><path d="M12 8c0-3-2-5-5-5 0 3 2 5 5 5z"/><path d="M12 14c0-2.4 1.7-4 4-4 0 2.4-1.7 4-4 4z"/><path d="M12 14c0-2.4-1.7-4-4-4 0 2.4 1.7 4 4 4z"/></svg>
+        <h3>麦芽与谷物</h3><span class="spacer"></span>
+        <span class="badge badge--amber" id="gristExtract">—</span>
+        <button class="btn btn--sm" type="button" id="btnCalGrist" title="按目标风格把原麦汁浓度校准到区间中点">校准投料量</button>
+        <button class="btn btn--sm" type="button" data-add="malt">+ 添加麦芽</button>
+      </div>
+      <div class="tbl-hint">左右滑动查看完整表格 →</div>
+      <div class="tbl-scroll">
+        <table class="rct" id="tblMalt">
+          <thead><tr>
+            <th class="rct__name">原料</th><th style="width:88px">用量 kg</th>
+            <th style="width:78px">色度 EBC</th><th style="width:82px">提取率 %</th>
+            <th class="c" style="width:66px">占比</th><th class="c" style="width:60px">产地</th><th class="c" style="width:58px">操作</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="totals">
+        <span>投料合计 <b id="gristTotal">0.00 kg</b></span>
+        <span>基础麦芽 <b id="gristBase">0%</b></span>
+        <span>加权色度 <b id="gristColor">0 EBC</b></span>
+        <span>理论提取物 <b id="gristKg">0.00 kg</b></span>
+      </div>
+    </section>
+
+    <section class="card" id="sec-adjunct">
+      <div class="card__hd">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l-1.5 18h-9L6 3z"/><path d="M7.2 10h9.6"/></svg>
+        <h3>糖与辅料</h3><span class="spacer"></span>
+        <span class="badge badge--mute" id="adjExtract">—</span>
+        <button class="btn btn--sm" type="button" data-add="sugar">+ 添加辅料</button>
+      </div>
+      <div class="tbl-hint">左右滑动查看完整表格 →</div>
+      <div class="tbl-scroll">
+        <table class="rct" id="tblSugar">
+          <thead><tr>
+            <th class="rct__name">原料</th><th style="width:88px">用量 kg</th>
+            <th style="width:90px">可发酵性</th>            <th class="c" style="width:66px">占比</th>
+            <th class="c" style="width:60px">产地</th><th class="c" style="width:58px">操作</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="totals"><span>辅料合计 <b id="sugarTotal">0.00 kg</b></span><span>辅料占比（按提取物）<b id="sugarShare">0%</b></span></div>
+    </section>
+
+    <section class="card" id="sec-hop">
+      <div class="card__hd">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c0-7 3-9 7-9 0 5-3 9-7 9z"/><path d="M12 21c0-7-3-9-7-9 0 5 3 9 7 9z"/><path d="M12 12c0-4.5 2-7 2-9-1.4.4-2 1-2 1S11.4 3.4 10 3c0 2 2 4.5 2 9z"/></svg>
+        <h3>酒花</h3><span class="spacer"></span>
+        <button class="btn btn--sm" type="button" id="btnCalHop" title="按目标风格把总苦度校准到区间中点">校准苦度</button>
+        <button class="btn btn--sm" type="button" data-add="hop">+ 添加酒花</button>
+      </div>
+      <div class="tbl-hint">左右滑动查看完整表格 →</div>
+      <div class="tbl-scroll">
+        <table class="rct" id="tblHop">
+          <thead><tr>
+            <th class="rct__name">酒花品种</th><th style="width:70px">用量 g</th>
+            <th style="width:64px">α-酸 %</th><th style="width:96px">添加方式</th>
+            <th style="width:86px">煮沸时长</th><th class="c" style="width:72px">贡献 IBU</th>
+            <th class="c" style="width:54px">产地</th><th class="c" style="width:58px">操作</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="totals">
+        <span>总苦度 <b id="hopTotal">0 IBU</b></span>
+        <span>苦花(g) <b id="hopBitter">0</b></span>
+        <span>香花(g) <b id="hopAroma">0</b></span>
+        <span>酒花总投加 <b id="hopG">0 g</b></span>
+      </div>
+      <div id="ibuMixWrap" class="ibu-mix-wrap">
+        <div class="ibu-mix" id="ibuMix"></div>
+        <div class="ibu-mix-legend" id="ibuLegend"></div>
+      </div>
+      <div class="card__ft">
+        <div class="field__note"><b>「煮沸时长」的口径</b>：填的是酒花在煮沸锅中<b>停留的分钟数</b>，等价于「关火前多少分钟投放」——<span class="hn">60</span> = 从煮沸开始即投，<span class="hn">15</span> = 关火前 15 min 投，<span class="hn">0</span> = 关火时投。苦度计算（Tinseth）用的就是这段停留时长，停留越久异构越多、苦度越高；填得比煮沸总时长还大时按总时长封顶，超出部分不再增加苦度。回旋按等效 5 min 煮沸折算，干投不计入 IBU（但会贡献苦感与香气）。</div>
+      </div>
+    </section>
+
+    <section class="card" id="sec-yeast">
+      <div class="card__hd">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9.5" r="4.4"/><circle cx="16.5" cy="14.5" r="3.2"/><circle cx="7.5" cy="17" r="2.4"/></svg>
+        <h3>酵母与发酵</h3><span class="spacer"></span>
+        <span class="badge badge--mute" id="yeastBadge">—</span>
+      </div>
+      <div class="card__bd" style="display:flex;flex-direction:column;gap:11px">
+        <div class="row row--2">
+          <div class="field">
+            <label class="field__label" for="selYeast">酵母菌株</label>
+            <select class="sel" id="selYeast"></select>
+            <div class="field__note" id="yeastNote">—</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:11px">
+            <div class="field">
+              <label class="field__label" for="inPitch">接种量 <span class="unit">g/L</span></label>
+              <input class="inp" id="inPitch" type="number" min="0.3" max="3" step="0.05" value="0.7">
+            </div>
+            <div class="field">
+              <label class="field__label" for="inAtten">表观发酵度 <span class="unit">%</span></label>
+              <input class="inp" id="inAtten" type="number" min="40" max="100" step="1" value="80">
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field__label"><span>主发酵温度</span><span class="unit" id="tempNote">—</span></div>
+          <input type="range" id="rgTemp" min="5" max="38" step="0.5" value="19">
+          <div class="gauge__scale"><span>5℃</span><span id="tempMid">20℃</span><span>38℃</span></div>
+        </div>
+        <div class="row row--3">
+          <div class="field"><label class="field__label">酵母用量</label><div class="kv" style="padding:0"><b id="yeastG">—</b></div></div>
+          <div class="field"><label class="field__label">真实发酵度</label><div class="kv" style="padding:0"><b id="yeastRdf">—</b></div></div>
+          <div class="field"><label class="field__label">酒精耐受上限</label><div class="kv" style="padding:0"><b id="yeastTol">—</b></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="sec-schedule">
+      <div class="card__hd">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.2V12l3.4 2"/></svg>
+        <h3>工艺时间轴</h3><span class="spacer"></span>
+        <span class="badge badge--mute" id="schedBadge">—</span>
+      </div>
+      <div class="card__bd">
+        <div class="row row--3" style="margin-bottom:12px">
+          <div class="field">
+            <label class="field__label" for="inMashTemp">糖化休止温度 <span class="unit">℃</span></label>
+            <input class="inp" id="inMashTemp" type="number" min="55" max="72" step="1" value="66">
+          </div>
+          <div class="field">
+            <label class="field__label" for="inMashTime">糖化时长 <span class="unit">min</span></label>
+            <input class="inp" id="inMashTime" type="number" min="20" max="150" step="5" value="60">
+          </div>
+          <div class="field">
+            <label class="field__label" for="inMashOut">出醪温度 <span class="unit">℃</span></label>
+            <input class="inp" id="inMashOut" type="number" min="70" max="80" step="1" value="76">
+          </div>
+        </div>
+        <svg class="tl" id="svgTimeline" viewBox="0 0 680 172" role="img" aria-label="酿造工艺时间轴"></svg>
+        <div class="field__note" id="mashNote" style="margin-top:8px">—</div>
+      </div>
+    </section>
+
+    <section class="card" id="sec-lib">
+      <div class="card__hd">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2 2 0 0 1 6 3.5h5v17H6a2 2 0 0 0-2 2z"/><path d="M20 5.5a2 2 0 0 0-2-2h-5v17h5a2 2 0 0 1 2 2z"/></svg>
+        <h3>原料库</h3><span class="spacer"></span>
+        <span class="badge badge--mute" id="libCount">—</span>
+      </div>
+      <div class="card__bd">
+        <div class="seg" id="segLibOrigin" role="group" style="margin-bottom:9px">
+          <button type="button" data-origin="all" aria-pressed="true">全部</button>
+          <button type="button" data-origin="CN" aria-pressed="false">国产</button>
+          <button type="button" data-origin="IM" aria-pressed="false">进口</button>
+        </div>
+        <div class="seg" id="segLibCat" role="group" style="margin-bottom:9px">
+          <button type="button" data-cat="malt" aria-pressed="true">麦芽</button>
+          <button type="button" data-cat="sugar" aria-pressed="false">糖·辅料</button>
+          <button type="button" data-cat="hop" aria-pressed="false">酒花</button>
+          <button type="button" data-cat="yeast" aria-pressed="false">酵母</button>
+        </div>
+        <div class="libsearch">
+          <input class="inp" id="libSearch" type="search" placeholder="搜索品种 / 厂牌 / 产地…">
+        </div>
+        <div class="liblist" id="libList"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ============ 右栏：指标 / 匹配 / 风味 / 国产化 / 提示 ============ -->
+  <div class="col col--right">
+
+    <section class="card" id="sec-metrics">
+      <div class="card__hd">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 19.5h17"/><path d="M6.5 16v-5M11 16V6.5M15.5 16v-8M20 16v-3"/></svg>
+        <h3>实时指标</h3><span class="spacer"></span>
+        <span class="badge badge--mute" id="metricHint">以目标风格比对</span>
+      </div>
+      <div class="card__bd">
+        <div class="metric-hero" id="metricGrid"></div>
+        <div style="margin-top:12px">
+          <div class="field__label" style="margin-bottom:6px"><span>成品酒色</span><span class="unit" id="colorName">—</span></div>
+          <div class="colorchip" id="colorChip"><span class="colorchip__lbl" id="colorLbl">—</span></div>
+          <div class="colorbar" id="colorBar"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="sec-match">
+      <div class="card__hd">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9 17l10.5-10.5"/></svg>
+        <h3>风格匹配度</h3><span class="spacer"></span>
+        <span class="badge" id="matchBadge">—</span>
+      </div>
+      <div class="card__bd">
+        <div class="ringwrap">
+          <div class="ring">
+            <svg viewBox="0 0 100 100" width="96" height="96">
+              <circle cx="50" cy="50" r="42" fill="none" stroke="#EFEAE0" stroke-width="11"/>
+              <circle id="matchArc" cx="50" cy="50" r="42" fill="none" stroke="#C07E1A" stroke-width="11"
+                      stroke-linecap="round" stroke-dasharray="0 264" style="transition:stroke-dasharray .5s cubic-bezier(.3,.9,.4,1),stroke .3s"/>
+            </svg>
+            <div class="ring__ctr"><b id="matchScore">—</b><span>匹配度</span></div>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div id="matchList" style="display:flex;flex-direction:column;gap:5px"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="sec-radar">
+      <div class="card__hd">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 20.5 9.6 17.3 20H6.7L3.5 9.6z"/><path d="M12 8.5 16.5 11.8 14.7 17h-5.4L7.5 11.8z"/></svg>
+        <h3>风味轮廓</h3><span class="spacer"></span>
+        <span class="badge badge--mute">估算值</span>
+      </div>
+      <div class="card__bd">
+        <svg class="chart" id="svgRadar" viewBox="0 0 340 260" role="img" aria-label="风味雷达图"></svg>
+        <div class="legend">
+          <span><i style="background:#C07E1A"></i>本配方</span>
+          <span><i style="background:#9FB8A2"></i>该风格典型</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="sec-local">
+      <div class="card__hd">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 4.5 7v5.5c0 4.4 3 7.6 7.5 8.5 4.5-.9 7.5-4.1 7.5-8.5V7z"/><path d="M9.2 12.2l2 2 3.6-3.9"/></svg>
+        <h3>原料国产化</h3><span class="spacer"></span>
+        <span class="badge badge--cn" id="localBadge">—</span>
+      </div>
+      <div class="card__bd">
+        <div class="ringwrap">
+          <div class="ring">
+            <svg viewBox="0 0 100 100" width="96" height="96">
+              <circle cx="50" cy="50" r="42" fill="none" stroke="#EFEAE0" stroke-width="11"/>
+              <circle id="localArc" cx="50" cy="50" r="42" fill="none" stroke="#47734A" stroke-width="11"
+                      stroke-linecap="round" stroke-dasharray="0 264" style="transition:stroke-dasharray .5s cubic-bezier(.3,.9,.4,1)"/>
+            </svg>
+            <div class="ring__ctr"><b id="localPct">—</b><span>按用量加权</span></div>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div id="localBreak" style="display:flex;flex-direction:column;gap:5px"></div>
+          </div>
+        </div>
+        <div id="swapBox" style="margin-top:12px"></div>
+      </div>
+    </section>
+
+    <section class="card" id="sec-alerts">
+      <div class="card__hd">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.2 21 19.5H3z"/><path d="M12 10v4.2M12 17.1h.01"/></svg>
+        <h3>配方体检</h3><span class="spacer"></span>
+        <span class="badge badge--mute" id="alertCount">—</span>
+      </div>
+      <div class="card__bd"><div class="alerts" id="alertList"></div></div>
+    </section>
+
+    <section class="card" id="sec-help">
+      <div class="card__hd">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.4 2.3c-.7.3-1 .9-1 1.7v.3"/><path d="M12 16.6h.01"/></svg>
+        <h3>计算口径</h3><span class="spacer"></span>
+        <button class="btn btn--ghost btn--sm" type="button" id="btnHelp">展开</button>
+      </div>
+      <div class="card__bd" id="helpBody" hidden>
+        <dl class="hintlist">
+          <dt>麦汁浓度（OG）</dt>
+          <dd>提取率法：<span class="hn">Σ(投料kg × 提取率% × 3.857 × 效率) ÷ 体积L = 比重点数</span></dd>
+          <dt>苦度（IBU）</dt>
+          <dd>Tinseth 模型：<span class="hn">U = 1.65×0.000125^(OG−1) × [1−e^(−0.04t)]/4.15</span>，再按 α-酸毫克数折算。回旋/干投按低利用率计入。</dd>
+          <dt>色度（EBC/SRM）</dt>
+          <dd>Morey 模型：<span class="hn">MCU = Σ(lb × °L) ÷ gal</span>，<span class="hn">SRM = 1.4922 × MCU^0.6859</span>，<span class="hn">EBC = SRM × 1.97</span>。</dd>
+          <dt>酒精度</dt>
+          <dd>Balling 修正式：<span class="hn">ABV = 76.08(OG−FG)/(1.775−OG) × FG/0.794</span>。</dd>
+          <dt>真实发酵度</dt>
+          <dd>表观发酵度换算，<span class="hn">RDF ≈ ADF × 0.819</span>（近似）。</dd>
+          <dt>数据说明</dt>
+          <dd>原料参数取自厂商公开技术资料与行业常见区间；酵母发酵度为区间中值。实际生产以当批检测报告为准。</dd>
+        </dl>
+      </div>
+    </section>
+
+  </div>
+</div>
+</div>
+
+<footer class="foot">
+  <div class="foot__grid">
+    <div><b>计算模型</b>　麦汁浓度：提取率法（Σ 投料×提取率×3.857×效率 ÷ 体积）｜苦度：Tinseth 模型（回旋按等效 5 分钟煮沸折算，干投不计入 IBU）｜色度：Morey 模型（MCU→SRM→EBC，配 Morey 标准色表）｜酒精度：Balling 修正式｜真实发酵度：RDF ≈ ADF × 0.819。</div>
+    <div><b>数据来源</b>　国产酵母参数取自安琪酿造事业公开产品资料与产品目录；国产麦芽指标取自甘啤系列啤酒大麦品种审定与检测实测值；国产酒花指标取自厂商公开规格与《中外酒业》《食品与发酵工业》等文献。进口原料为各厂牌公开技术资料区间，酵母发酵度取区间中值。</div>
+    <div><b>数据标注</b>　每条原料标注来源等级（厂商资料 / 文献实测 / 行业区间）。标注为「行业区间」的品种（如部分国产酒花与特种麦芽），其 α-酸或色度因产地、年份、厂牌差异较大，本平台取保守值，<b>请按当批检测报告（COA）修改后再投料</b>。</div>
+    <div><b>使用边界</b>　本平台输出为配方设计与工艺参考，不替代实验室检测。实际生产请结合设备收得率、原料含水率与当批检测数据校正。麦糟（BSG）按 0% 提取物计入，其风味与工艺影响为经验性建议。</div>
+  </div>
+</footer>
+
+<nav class="mobile-bar" aria-label="区块跳转">
+  <button type="button" data-jump="sec-metrics" class="on">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 19.5h17"/><path d="M6.5 16v-5M11 16V6.5M15.5 16v-8M20 16v-3"/></svg>指标</button>
+  <button type="button" data-jump="sec-grist">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V8"/><path d="M12 8c0-3 2-5 5-5 0 3-2 5-5 5z"/><path d="M12 8c0-3-2-5-5-5 0 3 2 5 5 5z"/></svg>配方</button>
+  <button type="button" data-jump="sec-batch">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V9.5L12 4l8 5.5V20"/><path d="M9 20v-6h6v6"/></svg>参数</button>
+  <button type="button" data-jump="sec-lib">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2 2 0 0 1 6 3.5h5v17H6a2 2 0 0 0-2 2z"/><path d="M20 5.5a2 2 0 0 0-2-2h-5v17h5a2 2 0 0 1 2 2z"/></svg>原料</button>
+  <button type="button" data-jump="sec-schedule">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.2V12l3.4 2"/></svg>工艺</button>
+</nav>
+<div id="toast" aria-live="polite"></div>
+<script>
+(function () {
+'use strict';
+
+/* =========================================================================
+   1 · 原料数据库
+   src 字段标注数据来源：
+     vendor = 厂商公开技术资料   paper = 文献 / 品种审定实测   ref = 行业常见区间
+   ========================================================================= */
+const SRC_LABEL = { vendor:'厂商资料', paper:'文献实测', ref:'行业区间' };
+const ORIGIN_LABEL = { CN:'国产', IM:'进口' };
+
+/* ---- 麦芽与谷物 ---- */
+/* t: base 基础麦芽 / special 特种麦芽 / roast 焙烤类；c 色度 EBC；e 提取率（风干基）% */
+const MALTS = [
+  /* ============ 国产 ============ */
+  {id:'cn-pale-7',  n:'国产淡色麦芽 · 甘啤7号制麦', b:'国内制麦厂', o:'CN', c:3.0,  e:82.3, t:'base',    s:'paper',
+   note:'甘啤7号二棱皮大麦。麦芽浸出物 82.3%、色度 3.0 EBC、α-氨基氮 195 mg/100g、库尔巴哈值 44%、糖化力 325 WK，达国标优级。'},
+  {id:'cn-pale-4',  n:'国产淡色麦芽 · 甘啤4号制麦', b:'国内制麦厂', o:'CN', c:3.0,  e:81.4, t:'base',    s:'paper',
+   note:'甘啤4号。麦芽浸出物 81.4%、色度 3.0 EBC、α-氨基氮 156.3 mg/100g、糖化力 367.6 WK，酶活力高、适合高辅料比配方。'},
+  {id:'cn-pale-6',  n:'国产淡色麦芽 · 甘啤6号制麦', b:'国内制麦厂', o:'CN', c:3.0,  e:81.0, t:'base',    s:'paper',
+   note:'甘啤6号。浸出物 80–82%、色度 3.0 EBC、α-氨基氮 155–180 mg/100g、糖化力 325–359 WK。'},
+  {id:'cn-pale-8',  n:'国产淡色麦芽 · 甘啤8号制麦', b:'国内制麦厂', o:'CN', c:4.8,  e:80.9, t:'base',    s:'paper',
+   note:'甘啤8号。麦芽浸出物 80.9%、色度 4.8 EBC、α-氨基氮 177 mg/100g、库尔巴哈值 43.0%、糖化力 295 WK；麦芽色略深，成品色偏金。'},
+  {id:'cn-pils',    n:'国产皮尔森麦芽', b:'国内制麦厂', o:'CN', c:3.5,  e:81.0, t:'base',    s:'ref',
+   note:'国内主流制麦厂常规品，色度与浸出率随批次波动，请以厂商 COA 为准。'},
+  {id:'cn-vienna',  n:'国产维也纳麦芽', b:'国内制麦厂', o:'CN', c:8.0,  e:79.0, t:'base',    s:'ref', note:'赋予金黄色与温和麦芽香。'},
+  {id:'cn-munich',  n:'国产慕尼黑麦芽', b:'国内制麦厂', o:'CN', c:20.0, e:78.0, t:'special', s:'ref', note:'增加面包皮、坚果类麦芽香与琥珀色调。'},
+  {id:'cn-wheat',   n:'国产小麦芽', b:'国内制麦厂', o:'CN', c:4.0,  e:84.0, t:'base',    s:'ref',
+   note:'蛋白与 β-葡聚糖含量高，有助泡沫与酒体；小麦比例建议 ≤60%，否则过滤困难。'},
+  {id:'cn-cara60',  n:'国产焦香麦芽 · 水晶 60 EBC', b:'国内制麦厂', o:'CN', c:60.0, e:75.0, t:'special', s:'ref', note:'焦糖甜香，增加琥珀色与酒体。'},
+  {id:'cn-cara120', n:'国产焦香麦芽 · 水晶 120 EBC', b:'国内制麦厂', o:'CN', c:120.0, e:73.0, t:'special', s:'ref', note:'深焦糖、葡萄干风味。'},
+  {id:'cn-choco',   n:'国产巧克力麦芽', b:'国内制麦厂', o:'CN', c:900.0, e:70.0, t:'roast', s:'ref', note:'咖啡、可可风味，无焦糊苦。建议 ≤8%。'},
+  {id:'cn-black',   n:'国产黑麦芽', b:'国内制麦厂', o:'CN', c:1300.0, e:68.0, t:'roast', s:'ref', note:'强焙烤苦与烟熏感，建议 ≤5%。'},
+  {id:'cn-lgbarley',n:'国产烘烤大麦', b:'国内制麦厂', o:'CN', c:1200.0, e:65.0, t:'roast', s:'ref', note:'无壳，干爽的焙烤苦，世涛常客。'},
+  {id:'cn-oat',     n:'国产燕麦片（压片）', b:'国内粮企', o:'CN', c:4.0,  e:76.0, t:'special', s:'ref', note:'提升酒体与顺滑口感，比例 ≤20%。'},
+  {id:'cn-barley',  n:'国产青稞麦芽', b:'国内制麦厂', o:'CN', c:5.0,  e:78.0, t:'base',    s:'ref', note:'青藏高原特色谷物，风味清甜，建议与基础麦芽搭配 ≤40%。'},
+
+  /* ============ 进口 ============ */
+  {id:'im-wey-pils',   n:'皮尔森麦芽', b:'Weyermann', o:'IM', c:3.7,  e:81.0, t:'base',    s:'vendor', note:'经典欧式基础麦芽，麦芽香干净，适合拉格与比利时风格。'},
+  {id:'im-wey-pale',   n:'淡色艾尔麦芽', b:'Weyermann', o:'IM', c:6.5,  e:80.0, t:'base',    s:'vendor', note:'艾尔类通用基础麦芽，比皮尔森略丰满。'},
+  {id:'im-wey-vienna', n:'维也纳麦芽', b:'Weyermann', o:'IM', c:7.5,  e:79.0, t:'base',    s:'vendor', note:'金黄色泽与烘烤麦芽香。'},
+  {id:'im-wey-mun1',   n:'慕尼黑麦芽 I 型', b:'Weyermann', o:'IM', c:17.0, e:78.0, t:'special', s:'vendor', note:'麦芽香浓郁，常用于慕尼黑风格与琥珀艾尔。'},
+  {id:'im-wey-mun2',   n:'慕尼黑麦芽 II 型', b:'Weyermann', o:'IM', c:22.0, e:77.0, t:'special', s:'vendor', note:'更深的麦芽香与色调，用量 3–15%。'},
+  {id:'im-wey-wheat',  n:'小麦芽', b:'Weyermann', o:'IM', c:4.0,  e:84.0, t:'base',    s:'vendor', note:'德式小麦啤酒核心原料，蛋白高、泡沫好。'},
+  {id:'im-wey-cara1',  n:'Caramunich I 焦香麦芽', b:'Weyermann', o:'IM', c:90.0, e:75.0, t:'special', s:'vendor', note:'焦糖、蜂蜜风味。'},
+  {id:'im-wey-carap',  n:'Carapils 焦糖皮尔森', b:'Weyermann', o:'IM', c:6.0,  e:78.0, t:'special', s:'vendor', note:'不增色，提升酒体与泡沫持久性，用量 3–8%。'},
+  {id:'im-wey-carafa', n:'Carafa II 特种焙烤麦芽', b:'Weyermann', o:'IM', c:1100.0, e:68.0, t:'roast', s:'vendor', note:'去壳深色麦芽，颜色深但苦味低，适合调色。'},
+  {id:'im-wey-chocw',  n:'巧克力小麦芽', b:'Weyermann', o:'IM', c:1000.0, e:70.0, t:'roast', s:'vendor', note:'柔和的可可风味，适合世涛与黑小麦艾尔。'},
+  {id:'im-wey-rbarley',n:'烘烤大麦', b:'Weyermann', o:'IM', c:1250.0, e:65.0, t:'roast', s:'vendor', note:'世涛标志性原料，干爽焙烤苦，常占 5–10%。'},
+  {id:'im-briess-2row',n:'二棱基础麦芽', b:'Briess', o:'IM', c:3.5,  e:80.0, t:'base',    s:'vendor', note:'美式中性基础麦芽（约 1.8 °L / 37 PPG），风味干净。'},
+  {id:'im-crisp-mo',   n:'Maris Otter 淡色麦芽', b:'Crisp', o:'IM', c:7.0,  e:82.0, t:'base',    s:'vendor', note:'英式经典麦芽（约 3–4 °L / 38 PPG），饼干与坚果底味，英式苦啤首选。'},
+  {id:'im-ding-bisc',  n:'饼干麦芽', b:'Dingemans', o:'IM', c:50.0, e:75.0, t:'special', s:'vendor', note:'烤面包、饼干香，用量 3–10%。'},
+  {id:'im-oat-flake',  n:'压片燕麦', b:'进口', o:'IM', c:4.5,  e:75.0, t:'special', s:'vendor', note:'浑浊 IPA 与世涛常用，提升顺滑度与浑浊稳定性。'}
+];
+
+/* ---- 糖与辅料 ---- */
+/* e 提取率 %；fer 可发酵比例 %；mash 是否需要糖化（经酶解，受糖化效率影响） */
+const SUGARS = [
+  {id:'cn-sucrose', n:'白砂糖（蔗糖）', b:'国产', o:'CN', e:100, fer:100, mash:false, s:'ref', note:'100% 可发酵，用于提高酒精度、收干酒体。建议 ≤10% 提取物，过量产生苹果味。'},
+  {id:'cn-dextrose',n:'葡萄糖（一水）', b:'国产', o:'CN', e:91,  fer:100, mash:false, s:'ref', note:'一水葡萄糖含约 9% 结晶水，故提取率按 91% 计。'},
+  {id:'cn-cornsyrup',n:'玉米糖浆', b:'国产', o:'CN', e:78, fer:95, mash:false, s:'ref', note:'工业啤酒常用辅料，降低成本并收干口感。'},
+  {id:'cn-rice',    n:'大米', b:'国产粮企', o:'CN', e:80, fer:95, mash:true,  s:'ref', note:'需先糊化。添加量 >20% 时需外加酶或采用糊化工艺，否则糖化率下降。'},
+  {id:'cn-cornflake',n:'玉米片', b:'国产粮企', o:'CN', e:78, fer:90, mash:true,  s:'ref', note:'已糊化压片，可直接投入糖化醪。'},
+  {id:'cn-barley-fl',n:'青稞片', b:'国产粮企', o:'CN', e:78, fer:90, mash:true,  s:'ref', note:'青藏高原特色辅料，清甜谷物风味，建议 ≤20%。'},
+  {id:'cn-oat-fl',  n:'国产压片燕麦', b:'国产粮企', o:'CN', e:76, fer:60, mash:true,  s:'ref', note:'β-葡聚糖高，可提升酒体，比例 ≥20% 易造成麦汁黏稠、洗糟慢。'},
+  {id:'cn-honey',   n:'蜂蜜', b:'国产', o:'CN', e:80, fer:100, mash:false, s:'ref', note:'建议在发酵中后期或冷却后添加以保留香气，此时需按实际添加点修正 OG。'},
+  {id:'cn-bsg',     n:'麦糟（BSG 湿糟干基）', b:'糖化副产物', o:'CN', e:0, fer:0, mash:false, s:'paper',
+   note:'糖化后的残渣，可发酵提取物已被洗出，不提供任何 OG 贡献，本平台按 0% 计入。建议在煮沸末期或发酵期添加以保留膳食纤维与谷物风味，推荐 ≤5%（占投料干重）；过量会带来涩感、浑浊与过滤困难。'},
+
+  {id:'im-candi',   n:'比利时焦糖糖浆（深色）', b:'进口', o:'IM', e:90, fer:90, mash:false, s:'ref', note:'带来果脯、焦糖风味，比利时深色强力啤酒常用。'},
+  {id:'im-lactose', n:'乳糖（不可发酵）', b:'进口', o:'IM', e:100, fer:0, mash:false, s:'ref', note:'酵母无法利用，直接增加残糖、酒体与甜度，是甜世涛的关键辅料。'},
+  {id:'im-malto',   n:'麦芽糊精', b:'进口', o:'IM', e:100, fer:3,  mash:false, s:'ref', note:'几乎不发酵，用于增稠增体。'},
+  {id:'im-oat-flake',n:'进口压片燕麦', b:'进口', o:'IM', e:75, fer:60, mash:true, s:'ref', note:'浑浊 IPA 标配，赋予顺滑口感与持久浑浊。'}
+];
+
+/* ---- 酒花 ---- */
+/* aa α-酸 %；be β-酸 %；ch 合葎草酮占 α-酸 %；use: bitter 苦花 / aroma 香花 / dual 兼用 */
+const HOPS = [
+  /* ============ 国产 ============ */
+  {id:'cn-qdh',   n:'青岛大花 Tsingdao Flower', b:'国产', o:'CN', aa:7.0, be:3.6, ch:36, use:'dual', s:'vendor',
+   note:'国产主栽品种，1937 年引入青岛，现主产于甘肃、新疆。苦香兼优：柠檬皮般的清亮苦感，香气柔和均衡，性价比高。α-酸 6–8%（均约 7%）、β-酸 3.0–4.2%、合葎草酮 35–38%、酒花油 0.4–0.8 mL/100g。'},
+  {id:'cn-marco', n:'马可波罗 Marco Polo', b:'国产', o:'CN', aa:12.5, be:5.0, ch:0, use:'bitter', s:'vendor',
+   note:'国产高 α-酸苦型花，α-酸约为青岛大花的 2 倍（12–13%），草香突出。文献报道与青岛大花按 α-酸 1:1 搭配时成品苦味值（IBU）无显著差异，可显著降本。合葎草酮未见统一公开值，本平台不参与苦味平滑度评估。'},
+  {id:'cn-qilin', n:'麒麟丰绿', b:'国产', o:'CN', aa:6.0, be:0, ch:42, use:'bitter', s:'paper',
+   note:'新疆苦型花，α-酸中低、合葎草酮占 α-酸 40% 以上，苦感偏粗犷。α-酸官方未见统一公开值，此处按 6.0% 保守取值，请以当批检测报告修改。'},
+  {id:'cn-yule',  n:'余乐比特', b:'国产', o:'CN', aa:6.0, be:0, ch:22.7, use:'aroma', s:'paper',
+   note:'新疆香型花，合葎草酮占 α-酸 22.7%，酒花油具典型香型花特征。α-酸按 6.0% 保守取值，请以当批检测报告修改。'},
+  {id:'cn-fubei', n:'阜北-1', b:'国产', o:'CN', aa:6.0, be:0, ch:30.73, use:'aroma', s:'paper',
+   note:'新疆新培育香型花，合葎草酮占 α-酸 30.73%，酿造品质较佳。α-酸按 6.0% 保守取值，请以当批检测报告修改。'},
+
+  /* ============ 进口 ============ */
+  {id:'im-cascade',  n:'Cascade 卡斯卡特', b:'美国', o:'IM', aa:5.5,  be:5.8, ch:36, use:'dual',  s:'vendor', note:'美式精酿标杆：葡萄柚与柑橘花香，可全程使用。'},
+  {id:'im-centennial',n:'Centennial', b:'美国', o:'IM', aa:10.0, be:4.0, ch:30, use:'dual',  s:'vendor', note:'“超级 Cascade”，柑橘与花香浓郁，适合 IPA。'},
+  {id:'im-citra',    n:'Citra', b:'美国', o:'IM', aa:12.0, be:4.0, ch:23, use:'dual',  s:'vendor', note:'热带水果炸弹（西柚、荔枝、百香果），回旋与干投主力。'},
+  {id:'im-mosaic',   n:'Mosaic', b:'美国', o:'IM', aa:12.5, be:3.5, ch:25, use:'dual',  s:'vendor', note:'蓝莓、芒果、松脂复合香气。'},
+  {id:'im-simcoe',   n:'Simcoe', b:'美国', o:'IM', aa:13.0, be:4.5, ch:18, use:'dual',  s:'vendor', note:'松针与柑橘，合葎草酮低，苦感柔顺。'},
+  {id:'im-amarillo', n:'Amarillo', b:'美国', o:'IM', aa:9.0,  be:6.5, ch:22, use:'aroma', s:'vendor', note:'橙子与杏桃花香，香气型首选。'},
+  {id:'im-chinook',  n:'Chinook', b:'美国', o:'IM', aa:13.0, be:3.5, ch:31, use:'dual',  s:'vendor', note:'松脂、葡萄柚，苦味强劲。'},
+  {id:'im-ctz',      n:'Columbus / CTZ', b:'美国', o:'IM', aa:16.0, be:5.0, ch:32, use:'bitter',s:'vendor', note:'高 α-酸苦花，辛辣树脂感，适合做苦底。'},
+  {id:'im-magnum',   n:'Magnum', b:'德国', o:'IM', aa:13.0, be:5.5, ch:26, use:'bitter',s:'vendor', note:'干净的苦味，不干扰香气，拉格与 IPA 通用苦花。'},
+  {id:'im-hmfr',     n:'Hallertau Mittelfrüh', b:'德国', o:'IM', aa:4.0, be:4.5, ch:22, use:'aroma', s:'vendor', note:'贵族酒花，花香与香料感，德式拉格与小麦啤酒经典。'},
+  {id:'im-tettnang', n:'Tettnang', b:'德国', o:'IM', aa:4.2, be:4.2, ch:24, use:'aroma', s:'vendor', note:'细腻草本与花香，适合小麦啤酒。'},
+  {id:'im-saaz',     n:'Saaz', b:'捷克', o:'IM', aa:3.5, be:5.0, ch:26, use:'aroma', s:'vendor', note:'捷克贵族酒花，辛香草本，皮尔森灵魂。'},
+  {id:'im-ekg',      n:'East Kent Goldings', b:'英国', o:'IM', aa:5.0, be:2.5, ch:28, use:'aroma', s:'vendor', note:'蜂蜜、香料、花香，英式苦啤与世涛经典。'},
+  {id:'im-fuggle',   n:'Fuggle', b:'英国', o:'IM', aa:4.5, be:2.5, ch:28, use:'aroma', s:'vendor', note:'泥土与木质的英式传统香气。'},
+  {id:'im-galaxy',   n:'Galaxy', b:'澳大利亚', o:'IM', aa:14.0, be:5.5, ch:34, use:'dual', s:'vendor', note:'百香果与桃，热带水果风格强烈。'},
+  {id:'im-nelson',   n:'Nelson Sauvin', b:'新西兰', o:'IM', aa:12.5, be:7.0, ch:23, use:'dual', s:'vendor', note:'长相思白葡萄酒般的醋栗香气。'},
+  {id:'im-huell',    n:'Huell Melon', b:'德国', o:'IM', aa:7.0, be:7.0, ch:20, use:'aroma', s:'vendor', note:'哈密瓜与草莓，德式新派香气。'},
+  {id:'im-motueka',  n:'Motueka', b:'新西兰', o:'IM', aa:7.0, be:5.0, ch:28, use:'aroma', s:'vendor', note:'青柠与热带水果，清爽型香气。'}
+];
+
+/* ---- 酵母 ---- */
+/* att 表观发酵度区间 %；tmp 发酵温度区间 ℃；tol 酒精耐受 %ABV；floc 絮凝；form 发酵方式 */
+const YEASTS = [
+  /* ============ 国产 · 安琪（来源：安琪酿造事业公开技术资料与产品目录） ============ */
+  {id:'cn-a01',  n:'安琪 A01 美式艾尔酵母', b:'安琪酵母', o:'CN', sp:'Saccharomyces cerevisiae', att:[75,83], tmp:[15,25], opt:[18,22], tol:10, floc:'中', form:'上面', rate:'50–100 g/hL', s:'vendor',
+   note:'风味中性，清淡花香与果香，收口干、酒体清澈；主发酵约 4 天（视温度）。表观发酵度 86%（单批次实测口径）、真实发酵度约 70%、麦芽三糖利用率 >85%，高絮凝、沉降快而紧实。适合美式艾尔、淡色艾尔。'},
+  {id:'cn-bf27', n:'安琪 BF27 拉格酵母', b:'安琪酵母', o:'CN', sp:'Saccharomyces pastorianus', att:[80,85], tmp:[10,20], opt:[10,15], tol:10, floc:'高', form:'下面', rate:'80–150 g/hL', s:'vendor',
+   note:'经典 Weihenstephan 系下面发酵菌株，低温滞后期短、发酵稳健；中性且带适度花香果味，发酵彻底、残糖低，适合清爽型拉格与皮尔森。'},
+  {id:'cn-bf16', n:'安琪 BF16 拉格酵母', b:'安琪酵母', o:'CN', sp:'Saccharomyces pastorianus', att:[80,84], tmp:[10,20], opt:[10,15], tol:10, floc:'高', form:'下面', rate:'80–150 g/hL', s:'vendor',
+   note:'起酵迅速、发酵平稳，香气优雅细腻，口感清爽易饮；适合拉格、皮尔森。'},
+  {id:'cn-cn36', n:'安琪 CN36 英式艾尔酵母', b:'安琪酵母', o:'CN', sp:'Saccharomyces cerevisiae', att:[77,86], tmp:[10,25], opt:[13,22], tol:13, floc:'高', form:'上面', rate:'50–100 g/hL', s:'vendor',
+   note:'降糖速率快、凝集性好，酯香淡雅、口感温润柔和；温度适应范围宽，适合淡色艾尔、世涛、IPA，也有利于高温季节控温。'},
+  {id:'cn-cy115',n:'安琪 CY115 英式艾尔酵母', b:'安琪酵母', o:'CN', sp:'Saccharomyces cerevisiae', att:[75,83], tmp:[14,25], opt:[18,22], tol:10, floc:'高', form:'上面', rate:'50–100 g/hL', s:'vendor',
+   note:'发酵速率快、絮凝性好（沉降性极佳），果香细腻、回味甘甜、口感醇厚易饮；适合淡色艾尔与果味啤酒。'},
+  {id:'cn-wa18', n:'安琪 WA18 德式小麦酵母', b:'安琪酵母', o:'CN', sp:'Saccharomyces cerevisiae', att:[73,85], tmp:[15,25], opt:[18,22], tol:10, floc:'中', form:'上面', rate:'50–100 g/hL', s:'vendor',
+   note:'絮凝良好，典型丁香酚与香蕉酯香，专为德式小麦啤酒设计。'},
+  {id:'cn-w008', n:'安琪 W008 小麦艾尔酵母', b:'安琪酵母', o:'CN', sp:'Saccharomyces cerevisiae var. diastaticus', att:[73,85], tmp:[18,24], opt:[18,22], tol:10, floc:'低', form:'上面', rate:'50–100 g/hL', s:'vendor',
+   note:'含 STA1 基因（diastaticus），可分解糊精，发酵度高、酒体更干；注意与常规批次分线使用以防交叉污染。'},
+  {id:'cn-cs31', n:'安琪 CS31 比利时赛松酵母', b:'安琪酵母', o:'CN', sp:'Saccharomyces cerevisiae var. diastaticus', att:[83,94], tmp:[18,30], opt:[20,26], tol:14, floc:'低', form:'上面', rate:'50–100 g/hL', s:'vendor',
+   note:'发酵度极高（可至 94%）、降糖温和，酯香馥郁、水果味突出；适合比利时风格与高酒精度啤酒。耐温高，夏季控温友好。'},
+  {id:'cn-fg11', n:'安琪 FG11 热带 IPA 酵母', b:'安琪酵母', o:'CN', sp:'Saccharomyces cerevisiae', att:[75,82], tmp:[20,35], opt:[22,28], tol:15, floc:'中', form:'上面', rate:'50–100 g/hL', s:'vendor',
+   note:'高温发酵型，强化热带水果酯香，适合浑浊 IPA / 热带 IPA；高温季节无需强制降温。'},
+  {id:'cn-ko',   n:'安琪 KO 科隆酵母', b:'安琪酵母', o:'CN', sp:'Saccharomyces cerevisiae', att:[75,82], tmp:[12,25], opt:[15,20], tol:11, floc:'中高', form:'上面', rate:'50–100 g/hL', s:'vendor',
+   note:'科隆风格专用：低温上面发酵，干净中带轻微果香，适合 Kölsch 与 Alt。'},
+  {id:'cn-la03', n:'安琪 LA03 新英格兰 IPA 酵母', b:'安琪酵母', o:'CN', sp:'Saccharomyces cerevisiae', att:[71,75], tmp:[18,25], opt:[19,22], tol:11, floc:'中高', form:'上面', rate:'50–100 g/hL', s:'vendor',
+   note:'低发酵度、保留残糖与浑浊，突出酒花香气；浑浊 IPA 定向菌株。'},
+  {id:'cn-na05', n:'安琪 NA05 无醇啤酒酵母', b:'安琪酵母', o:'CN', sp:'Torulaspora delbrueckii', att:[13,17], tmp:[18,28], opt:[20,24], tol:0, floc:'低', form:'上面', rate:'50–100 g/hL', s:'vendor',
+   note:'非酿酒酵母（球拟酵母属），代谢路径不产乙醇或极少产乙醇，可直接酿出 ABV ≤0.5% 的无醇啤酒，无需脱醇设备；表观发酵度仅 13–17%，残糖高、口感偏甜。'},
+
+  /* ============ 进口 ============ */
+  {id:'im-us05', n:'SafAle US-05', b:'Fermentis', o:'IM', sp:'Saccharomyces cerevisiae', att:[78,82], tmp:[18,26], opt:[18,22], tol:11, floc:'中低', form:'上面', rate:'50–100 g/hL', s:'vendor', note:'美式艾尔基准菌株，干净、中性，适合 IPA、淡色艾尔、美式世涛。'},
+  {id:'im-s04',  n:'SafAle S-04', b:'Fermentis', o:'IM', sp:'Saccharomyces cerevisiae', att:[74,82], tmp:[15,24], opt:[18,20], tol:10, floc:'高', form:'上面', rate:'50–100 g/hL', s:'vendor', note:'英式经典，絮凝快、沉降紧实，酒体清澈，轻微果酯。'},
+  {id:'im-w34',  n:'SafLager W-34/70', b:'Fermentis', o:'IM', sp:'Saccharomyces pastorianus', att:[80,84], tmp:[9,22], opt:[12,15], tol:11, floc:'高', form:'下面', rate:'80–150 g/hL', s:'vendor', note:'全球使用最广的拉格干酵母（Weihenstephan 34/70），干净稳定，可耐较高温发酵。'},
+  {id:'im-s23',  n:'SafLager S-23', b:'Fermentis', o:'IM', sp:'Saccharomyces pastorianus', att:[80,84], tmp:[9,22], opt:[12,15], tol:11, floc:'中高', form:'下面', rate:'80–150 g/hL', s:'vendor', note:'果香略重于 34/70，适合欧式拉格。'},
+  {id:'im-k97',  n:'SafAle K-97', b:'Fermentis', o:'IM', sp:'Saccharomyces cerevisiae', att:[77,81], tmp:[15,25], opt:[15,20], tol:10, floc:'低', form:'上面', rate:'50–100 g/hL', s:'vendor', note:'德式艾尔/科隆风格，发酵度稳定。'},
+  {id:'im-be134',n:'SafAle BE-134', b:'Fermentis', o:'IM', sp:'Saccharomyces cerevisiae var. diastaticus', att:[88,92], tmp:[18,28], opt:[20,26], tol:12, floc:'低', form:'上面', rate:'50–100 g/hL', s:'vendor', note:'赛松专用 diastaticus 菌株，发酵度极高、辛香明显。'},
+  {id:'im-t58',  n:'SafAle T-58', b:'Fermentis', o:'IM', sp:'Saccharomyces cerevisiae', att:[70,78], tmp:[15,25], opt:[18,22], tol:11, floc:'中', form:'上面', rate:'50–100 g/hL', s:'vendor', note:'比利时风格，酚香与辛香突出。'},
+  {id:'im-wb06', n:'SafAle WB-06', b:'Fermentis', o:'IM', sp:'Saccharomyces cerevisiae', att:[86,90], tmp:[18,24], opt:[18,22], tol:10, floc:'低', form:'上面', rate:'50–100 g/hL', s:'vendor', note:'德式小麦酵母，丁香与香蕉酯香显著，发酵度高。'},
+  {id:'im-notts',n:'Nottingham', b:'Lallemand', o:'IM', sp:'Saccharomyces cerevisiae', att:[77,83], tmp:[10,22], opt:[14,21], tol:12, floc:'高', form:'上面', rate:'50–100 g/hL', s:'vendor', note:'英式高发酵度菌株，10℃ 也能工作，低温下极其干净。'},
+  {id:'im-bry97',n:'LalBrew BRY-97', b:'Lallemand', o:'IM', sp:'Saccharomyces cerevisiae', att:[76,80], tmp:[12,22], opt:[18,20], tol:12, floc:'中高', form:'上面', rate:'50–100 g/hL', s:'vendor', note:'西海岸艾尔风格，干净通透。'},
+  {id:'im-wlp001',n:'WLP001 California Ale', b:'White Labs', o:'IM', sp:'Saccharomyces cerevisiae', att:[73,80], tmp:[18,21], opt:[20,22], tol:12, floc:'中', form:'上面', rate:'液体酵母', s:'vendor', note:'美式艾尔液体酵母标杆，中性干净、发酵度高。'},
+  {id:'im-wlp002',n:'WLP002 English Ale', b:'White Labs', o:'IM', sp:'Saccharomyces cerevisiae', att:[63,70], tmp:[18,20], opt:[18,20], tol:10, floc:'很高', form:'上面', rate:'液体酵母', s:'vendor', note:'英式低发酵度菌株，絮凝极强，残留甜感与麦芽表达突出。'},
+  {id:'im-wlp029',n:'WLP029 German Ale/Kölsch', b:'White Labs', o:'IM', sp:'Saccharomyces cerevisiae', att:[72,78], tmp:[17,20], opt:[17,19], tol:10, floc:'中高', form:'上面', rate:'液体酵母', s:'vendor', note:'科隆风格，低温上面发酵，干净带微果香。'},
+  {id:'im-wlp830',n:'WLP830 German Lager', b:'White Labs', o:'IM', sp:'Saccharomyces pastorianus', att:[74,79], tmp:[10,13], opt:[10,12], tol:11, floc:'中', form:'下面', rate:'液体酵母', s:'vendor', note:'最常用的德式拉格液体菌株，干净、稳定。'},
+  {id:'im-wlp300',n:'WLP300 Hefeweizen Ale', b:'White Labs', o:'IM', sp:'Saccharomyces cerevisiae', att:[72,76], tmp:[20,22], opt:[20,22], tol:10, floc:'低', form:'上面', rate:'液体酵母', s:'vendor', note:'德式小麦经典，香蕉与丁香平衡。'},
+  {id:'im-wy1056',n:'Wyeast 1056 American Ale', b:'Wyeast', o:'IM', sp:'Saccharomyces cerevisiae', att:[73,77], tmp:[16,22], opt:[18,20], tol:11, floc:'中低', form:'上面', rate:'液体酵母', s:'vendor', note:'与 WLP001 / US-05 同源系，干净中性。'},
+  {id:'im-wy3068',n:'Wyeast 3068 Weihenstephan Weizen', b:'Wyeast', o:'IM', sp:'Saccharomyces cerevisiae', att:[73,77], tmp:[18,24], opt:[18,22], tol:10, floc:'低', form:'上面', rate:'液体酵母', s:'vendor', note:'德式小麦标杆，香蕉酯香突出。'},
+  {id:'im-wy3711',n:'Wyeast 3711 French Saison', b:'Wyeast', o:'IM', sp:'Saccharomyces cerevisiae var. diastaticus', att:[83,89], tmp:[18,25], opt:[20,24], tol:12, floc:'低', form:'上面', rate:'液体酵母', s:'vendor', note:'法式赛松，发酵度极高，辛香与柑橘感。'},
+  {id:'im-wy2206',n:'Wyeast 2206 Bavarian Lager', b:'Wyeast', o:'IM', sp:'Saccharomyces pastorianus', att:[73,77], tmp:[8,14], opt:[9,12], tol:10, floc:'中高', form:'下面', rate:'液体酵母', s:'vendor', note:'巴伐利亚拉格，麦芽表达更突出。'}
+];
+
+/* ---- BJCP 2021 风格目标区间 ---- */
+/* fl 风味维度估算典型值（0–10）：sw 甜 bi 苦 ho 酒花香 es 酯香 bo 酒体 ro 焙烤 */
+const STYLES = [
+  {id:'1b',  n:'American Lager',        cn:'美式拉格',         fam:'lager',  og:[1.040,1.050], fg:[1.004,1.010], abv:[4.2,5.3],  ibu:[8,18],   srm:[2,3.5],
+   d:'淡爽干净、几乎无酯香，酒花极低。', fl:{sw:2,bi:2,ho:2,es:2,bo:2,ro:0}},
+  {id:'1d',  n:'American Wheat Beer',   cn:'美式小麦啤酒',     fam:'ale',    og:[1.040,1.055], fg:[1.008,1.013], abv:[4.0,5.5],  ibu:[15,30],  srm:[3,6],
+   d:'小麦带来的柔和面包感，酒花适度，无丁香香蕉酚香。', fl:{sw:3,bi:3,ho:4,es:3,bo:3,ro:0}},
+  {id:'2a',  n:'International Pale Lager', cn:'国际淡色拉格',  fam:'lager',  og:[1.042,1.050], fg:[1.008,1.012], abv:[4.5,6.0],  ibu:[18,25],  srm:[2,6],
+   d:'工业化拉格的升级版：干净、清爽、苦度低而均衡，原料适应性最广。', fl:{sw:2,bi:3,ho:2,es:2,bo:2,ro:0}},
+  {id:'3b',  n:'Czech Premium Pale Lager', cn:'捷克优质淡色拉格', fam:'lager', og:[1.044,1.060], fg:[1.013,1.017], abv:[4.2,5.8], ibu:[30,45], srm:[3.5,6],
+   d:'Saaz 贵族酒花主导的辛香与圆润苦味，麦芽柔和。', fl:{sw:3,bi:6,ho:5,es:3,bo:4,ro:0}},
+  {id:'4a',  n:'Munich Helles',         cn:'慕尼黑清亮啤酒',   fam:'lager',  og:[1.044,1.048], fg:[1.006,1.012], abv:[4.7,5.4],  ibu:[17,25],  srm:[3,5],
+   d:'淡金色，麦芽甜香柔和，苦味低而平衡。', fl:{sw:4,bi:3,ho:3,es:2,bo:4,ro:0}},
+  {id:'5b',  n:'Kölsch',                cn:'科隆啤酒',         fam:'ale',    og:[1.044,1.050], fg:[1.007,1.011], abv:[4.4,5.2],  ibu:[18,30],  srm:[3.5,5],
+   d:'低温上面发酵，干净中带轻微果香，柔和干爽。', fl:{sw:3,bi:4,ho:4,es:4,bo:3,ro:0}},
+  {id:'5d',  n:'German Pils',           cn:'德式皮尔森',       fam:'lager',  og:[1.044,1.050], fg:[1.008,1.013], abv:[4.4,5.2],  ibu:[22,40],  srm:[2,5],
+   d:'酒花苦味干爽锐利，收口干净，气泡感强。', fl:{sw:2,bi:6,ho:6,es:2,bo:3,ro:0}},
+  {id:'10a', n:'Weissbier',             cn:'德式小麦啤酒',     fam:'ale',    og:[1.044,1.052], fg:[1.010,1.014], abv:[4.3,5.6],  ibu:[8,15],   srm:[2,6],
+   d:'丁香酚与香蕉酯香主导，酒体浑厚、泡沫丰盈，几乎无苦味。', fl:{sw:4,bi:2,ho:2,es:9,bo:5,ro:0}},
+  {id:'10b', n:'Dunkles Weissbier',     cn:'德式深色小麦啤酒', fam:'ale',    og:[1.044,1.056], fg:[1.010,1.014], abv:[4.3,5.6],  ibu:[8,15],   srm:[14,23],
+   d:'小麦酚香叠加焦糖与面包皮，色深但苦度仍低。', fl:{sw:5,bi:3,ho:2,es:7,bo:6,ro:4}},
+  {id:'11b', n:'Best Bitter',           cn:'英式优质苦啤',     fam:'ale',    og:[1.040,1.048], fg:[1.008,1.012], abv:[3.8,4.6],  ibu:[25,40],  srm:[8,16],
+   d:'麦芽与英式酒花平衡，酒体轻至中，适饮性强。', fl:{sw:5,bi:5,ho:4,es:5,bo:4,ro:3}},
+  {id:'11c', n:'Strong Bitter',         cn:'英式强力苦啤',     fam:'ale',    og:[1.046,1.060], fg:[1.010,1.016], abv:[4.6,6.2],  ibu:[30,50],  srm:[8,18],
+   d:'更饱满的麦芽骨架与更高的酒花强度。', fl:{sw:5,bi:6,ho:5,es:5,bo:5,ro:3}},
+  {id:'15b', n:'Irish Stout',           cn:'爱尔兰世涛',       fam:'ale',    og:[1.036,1.044], fg:[1.007,1.011], abv:[4.0,4.5],  ibu:[30,40],  srm:[25,40],
+   d:'焙烤大麦的咖啡与干爽苦，酒体轻但口感扎实。', fl:{sw:4,bi:6,ho:3,es:3,bo:5,ro:9}},
+  {id:'16a', n:'Sweet Stout',           cn:'甜世涛',           fam:'ale',    og:[1.044,1.060], fg:[1.012,1.024], abv:[4.0,6.0],  ibu:[20,40],  srm:[30,40],
+   d:'乳糖带来明显残甜与厚重酒体，苦度被压制。', fl:{sw:8,bi:3,ho:2,es:4,bo:8,ro:8}},
+  {id:'18a', n:'Blonde Ale',            cn:'金色艾尔',         fam:'ale',    og:[1.038,1.054], fg:[1.008,1.013], abv:[3.8,5.5],  ibu:[15,28],  srm:[3,6],
+   d:'清爽易饮的入门风格，麦芽轻甜、酒花轻柔。', fl:{sw:3,bi:3,ho:3,es:4,bo:3,ro:0}},
+  {id:'18b', n:'American Pale Ale',     cn:'美式淡色艾尔',     fam:'ale',    og:[1.045,1.060], fg:[1.010,1.015], abv:[4.4,6.2],  ibu:[30,50],  srm:[5,10],
+   d:'美式酒花的柑橘与花香清晰，麦芽支撑简明，收口干爽。', fl:{sw:4,bi:6,ho:7,es:4,bo:4,ro:1}},
+  {id:'19a', n:'American Amber Ale',    cn:'美式琥珀艾尔',     fam:'ale',    og:[1.045,1.060], fg:[1.010,1.015], abv:[4.5,6.2],  ibu:[25,40],  srm:[10,17],
+   d:'焦糖麦芽与美式酒花并重，色彩琥珀。', fl:{sw:5,bi:5,ho:5,es:4,bo:5,ro:3}},
+  {id:'20a', n:'American Porter',       cn:'美式波特',         fam:'ale',    og:[1.050,1.070], fg:[1.012,1.018], abv:[4.8,6.5],  ibu:[25,50],  srm:[22,35],
+   d:'深色麦芽的巧克力与咖啡，中等酒体，酒花可选高。', fl:{sw:6,bi:5,ho:3,es:4,bo:7,ro:8}},
+  {id:'20c', n:'Imperial Stout',        cn:'帝国世涛',         fam:'ale',    og:[1.075,1.115], fg:[1.018,1.030], abv:[8.0,12.0], ibu:[50,90],  srm:[30,40],
+   d:'高酒精度、厚酒体，焙烤与深色果香交织，陈放潜力强。', fl:{sw:7,bi:7,ho:5,es:5,bo:9,ro:10}},
+  {id:'21a', n:'American IPA',          cn:'美式 IPA',         fam:'ale',    og:[1.056,1.070], fg:[1.010,1.015], abv:[5.5,7.5],  ibu:[40,70],  srm:[6,14],
+   d:'苦度与酒花香气俱强，干净的麦芽底，收口干。', fl:{sw:3,bi:8,ho:9,es:5,bo:4,ro:1}},
+  {id:'21c', n:'Hazy IPA',              cn:'浑浊 IPA / NEIPA', fam:'ale',    og:[1.060,1.085], fg:[1.010,1.015], abv:[6.0,9.0],  ibu:[25,60],  srm:[3,7],
+   d:'高比例回旋与干投，浑浊饱满、果汁感强，苦味柔和不锐利。', fl:{sw:5,bi:5,ho:10,es:7,bo:6,ro:0}},
+  {id:'22a', n:'Double IPA',            cn:'双料 IPA',         fam:'ale',    og:[1.065,1.085], fg:[1.008,1.018], abv:[7.5,10.0], ibu:[60,100], srm:[6,14],
+   d:'酒花强度与酒精度双高，但需保持可饮性。', fl:{sw:4,bi:9,ho:10,es:6,bo:6,ro:1}},
+  {id:'24a', n:'Witbier',               cn:'比利时小麦白啤',   fam:'ale',    og:[1.044,1.052], fg:[1.008,1.012], abv:[4.5,5.5],  ibu:[8,20],   srm:[2,4],
+   d:'柑橘与芫荽香料感，浑浊淡色，酸爽轻酒体。', fl:{sw:4,bi:3,ho:3,es:8,bo:4,ro:0}},
+  {id:'25a', n:'Belgian Golden Strong Ale', cn:'比利时金色强艾尔', fam:'ale', og:[1.070,1.095], fg:[1.008,1.018], abv:[7.5,10.5], ibu:[22,35], srm:[3,6],
+   d:'高发酵度带来干爽感，果酯与辛香层次多，酒体并不厚重。', fl:{sw:5,bi:4,ho:3,es:8,bo:3,ro:0}},
+  {id:'25b', n:'Saison',                cn:'赛松',             fam:'ale',    og:[1.048,1.065], fg:[1.002,1.012], abv:[5.0,7.0],  ibu:[20,35],  srm:[5,14],
+   d:'高发酵度、辛香与果酯并存，收口极干，气泡感强烈。', fl:{sw:3,bi:5,ho:5,es:8,bo:3,ro:0}},
+  {id:'25c', n:'Belgian Tripel',        cn:'比利时三料',       fam:'ale',    og:[1.075,1.085], fg:[1.008,1.014], abv:[7.5,9.5],  ibu:[20,40],  srm:[4.5,7],
+   d:'高酒精度却轻盈易饮，果酯与柔和酒精感。', fl:{sw:6,bi:5,ho:3,es:8,bo:4,ro:0}},
+  {id:'na',  n:'Low / Non-Alcohol Beer',cn:'无醇 / 低醇啤酒',  fam:'special',og:[1.008,1.022], fg:[1.006,1.018], abv:[0,0.5],    ibu:[8,22],   srm:[2,6],
+   d:'参考区间（非 BJCP 标准类别）。限制发酵型工艺：低 OG + 低发酵度酵母或冷终止发酵，成品 ABV ≤0.5%（GB/T 4927 无醇啤酒口径）。', fl:{sw:5,bi:2,ho:2,es:2,bo:2,ro:0}}
+];
+
+/* ---- 配方模板 ---- */
+/* 项目：[类型, 原料id, 用量, (酒花)添加方式, (酒花)时间分钟] */
+const TEMPLATES = [
+  {id:'t1', n:'国产全麦皮尔森', tag:'国产', style:'5d',
+   desc:'全部采用国产原料：国产皮尔森麦芽 + 青岛大花 + 安琪 BF16 拉格酵母。低温发酵，干净干爽收口。',
+   batch:{volume:20, efficiency:72, boil:60, evap:10, ratio:3.2},
+   malts:[['cn-pils',3.5],['cn-pale-7',0.7]],
+   sugars:[],
+   hops:[['cn-qdh',28,'boil',60],['cn-qdh',18,'boil',15],['cn-qdh',20,'whirl',0]],
+   yeast:'cn-bf16', pitch:0.9, atten:81, temp:12},
+
+  {id:'t2', n:'国产美式淡色艾尔', tag:'国产', style:'18b',
+   desc:'苦味干净、柑橘调明显；用青岛大花做苦底、马可波罗补强，成本可控。',
+   batch:{volume:20, efficiency:72, boil:60, evap:10, ratio:3.2},
+   malts:[['cn-pale-7',4.1],['cn-cara60',0.35],['cn-wheat',0.25]],
+   sugars:[],
+   hops:[['cn-marco',17,'boil',60],['cn-qdh',15,'boil',15],['cn-qdh',32,'whirl',0],['cn-qdh',40,'dryhop',3]],
+   yeast:'cn-a01', pitch:0.8, atten:79, temp:19},
+
+  {id:'t3', n:'浑浊 IPA（进口主料）', tag:'进口', style:'21c',
+   desc:'进口麦芽与酒花组合，观察浑浊度与果汁感。采用国产 FG11 高温发酵菌株强化热带果香，右侧同时给出麦芽与酒花的国产替代路径。',
+   batch:{volume:20, efficiency:74, boil:60, evap:10, ratio:3.0},
+   malts:[['im-wey-pale',3.9],['im-oat-flake',0.9],['im-wey-wheat',0.5]],
+   sugars:[],
+   hops:[['im-ctz',10,'boil',60],['im-citra',45,'whirl',0],['im-mosaic',45,'whirl',0],['im-citra',50,'dryhop',3],['im-mosaic',50,'dryhop',3]],
+   yeast:'cn-fg11', pitch:1.0, atten:78, temp:22},
+
+  {id:'t4', n:'德式小麦啤酒', tag:'混用', style:'10a',
+   desc:'小麦比例过半，突出丁香与香蕉酚酯香；安琪 WA18 对标德式小麦。总投料量直接决定 OG，注意别超风格上限。',
+   batch:{volume:20, efficiency:74, boil:60, evap:10, ratio:3.3},
+   malts:[['cn-wheat',2.2],['cn-pils',1.7],['cn-munich',0.3]],
+   sugars:[],
+   hops:[['im-hmfr',18,'boil',60]],
+   yeast:'cn-wa18', pitch:0.8, atten:78, temp:20},
+
+  {id:'t5', n:'比利时小麦白啤', tag:'混用', style:'24a',
+   desc:'低苦度 + 香料辅料（传统加橙皮与芫荽籽），酒体轻、浑浊，适合夏季。低发酵度菌株需要压低 OG 才能收干。',
+   batch:{volume:20, efficiency:72, boil:60, evap:10, ratio:3.2},
+   malts:[['cn-pils',2.15],['cn-wheat',1.8],['cn-oat-fl',0.25]],
+   sugars:[],
+   hops:[['im-saaz',20,'boil',60]],
+   yeast:'im-t58', pitch:0.8, atten:78, temp:20},
+
+  {id:'t6', n:'爱尔兰世涛', tag:'进口', style:'15b',
+   desc:'烘烤大麦提供咖啡干爽苦，酒体轻但风味浓度高。深色麦芽总量控制在 10% 以内。',
+   batch:{volume:20, efficiency:75, boil:60, evap:10, ratio:3.1},
+   malts:[['im-crisp-mo',3.2],['im-wey-rbarley',0.2],['cn-choco',0.12],['im-wey-carafa',0.08]],
+   sugars:[],
+   hops:[['im-ekg',56,'boil',60]],
+   yeast:'cn-cn36', pitch:0.8, atten:78, temp:19},
+
+  {id:'t7', n:'无醇啤酒（限发酵法）', tag:'特色', style:'na',
+   desc:'安琪 NA05（球拟酵母）不走乙醇代谢路径，无需脱醇设备即可做到 ABV ≤0.5%。低浓度麦汁 + 低发酵度是关键。',
+   batch:{volume:20, efficiency:70, boil:60, evap:10, ratio:3.0},
+   malts:[['cn-pils',1.6],['cn-cara60',0.3]],
+   sugars:[],
+   hops:[['cn-qdh',10,'boil',60],['cn-qdh',15,'whirl',0]],
+   yeast:'cn-na05', pitch:1.0, atten:14, temp:22},
+
+  {id:'t8', n:'麦糟风味拉格（课题向）', tag:'特色', style:'2a',
+   desc:'糖化后用湿麦糟在煮沸末期回添，保留膳食纤维与谷物风味。麦糟不贡献 OG，仅提供风味与固形物。',
+   batch:{volume:20, efficiency:72, boil:60, evap:10, ratio:3.2},
+   malts:[['cn-pils',3.6],['cn-pale-7',0.5]],
+   sugars:[['cn-bsg',0.25]],
+   hops:[['cn-qdh',20,'boil',60],['cn-qdh',12,'boil',10]],
+   yeast:'cn-bf27', pitch:0.9, atten:82, temp:12},
+
+  {id:'t9', n:'帝国世涛（高浓度）', tag:'进口', style:'20c',
+   desc:'高 OG、高苦度，注意酵母接种量与溶氧；发酵温度宁低勿高。Morey 色度模型在深色区会偏深，深色麦芽总量建议控制在 8–12%。',
+   batch:{volume:20, efficiency:68, boil:90, evap:9, ratio:2.9},
+   malts:[['im-crisp-mo',6.5],['im-wey-mun2',1.0],['im-wey-chocw',0.22],['im-wey-rbarley',0.18],['cn-cara120',0.22]],
+   sugars:[['cn-sucrose',0.5]],
+   hops:[['im-magnum',55,'boil',60],['im-ekg',30,'boil',20]],
+   yeast:'im-us05', pitch:1.4, atten:76, temp:19}
+];
+
+const ADD_METHODS = {
+  boil:   { label:'煮沸',   factor:1.00 },
+  whirl:  { label:'回旋',   factor:1.00 },
+  dryhop: { label:'干投',   factor:1.00 },
+  first:  { label:'头道麦汁', factor:1.00 }
+};
+
+/* =========================================================================
+   2 · 计算引擎
+   ========================================================================= */
+const KEX = 3.857;          /* 每 kg 原料、每 1% 提取率在 1 L 中贡献的比重点数 ×100 */
+const SRM_TABLE = [         /* Dan Morey 色度色表（SRM 1→40） */
+  [1,'#FFE699'],[2,'#FFD878'],[3,'#FFCA5A'],[4,'#FFBF42'],[5,'#FBB123'],[6,'#F8A600'],
+  [7,'#F39C00'],[8,'#EA8F00'],[9,'#E58500'],[10,'#DE7C00'],[11,'#D77200'],[12,'#CF6900'],
+  [13,'#CB6200'],[14,'#C35900'],[15,'#BB5100'],[16,'#B54C00'],[17,'#B04500'],[18,'#A63E00'],
+  [19,'#A13A00'],[20,'#9B3500'],[21,'#953000'],[22,'#8B2B00'],[23,'#8B2B00'],[24,'#7E2600'],
+  [25,'#7E2600'],[26,'#782200'],[27,'#6E1D00'],[28,'#6E1D00'],[29,'#6A1A00'],[30,'#6A1A00'],
+  [31,'#611500'],[32,'#5E1400'],[33,'#5A1000'],[34,'#5A1000'],[35,'#561000'],[36,'#4F0C00'],
+  [37,'#4B0B00'],[38,'#470900'],[39,'#470900'],[40,'#430700']
+];
+const clamp = (v,a,b) => Math.min(b, Math.max(a,v));
+const num = v => { const x = parseFloat(v); return isFinite(x) ? x : 0; };
+const fmt = (v,d=2) => (isFinite(v) ? v : 0).toFixed(d);
+
+/** 比重 ↔ 柏拉图度（°P）双向换算 */
+function sgToPlato(sg){
+  sg = clamp(sg, 1, 1.2);
+  return -616.868 + 1111.14*sg - 630.272*sg*sg + 135.997*sg*sg*sg;
+}
+function platoToSg(p){
+  return 1.000019 + 0.003865613*p + 0.00001296425*p*p + 0.00000005701128*p*p*p;
+}
+/** Morey 色表插值：SRM → HEX */
+function srmToHex(srm){
+  const s = clamp(srm, 1, 40);
+  let i = 0;
+  while (i < SRM_TABLE.length-1 && SRM_TABLE[i+1][0] < s) i++;
+  const [s0,h0] = SRM_TABLE[i], [s1,h1] = SRM_TABLE[Math.min(i+1, SRM_TABLE.length-1)];
+  const t = s1 === s0 ? 0 : clamp((s-s0)/(s1-s0), 0, 1);
+  const c0 = hex2rgb(h0), c1 = hex2rgb(h1);
+  const mix = c0.map((c,k) => Math.round(c + (c1[k]-c)*t));
+  return '#' + mix.map(c => c.toString(16).padStart(2,'0')).join('');
+}
+function hex2rgb(h){ return [1,3,5].map(i => parseInt(h.substr(i,2),16)); }
+function hexLum(h){ const [r,g,b] = hex2rgb(h); return (0.2126*r + 0.7152*g + 0.0722*b)/255; }
+
+/** 色度分级中文名 */
+function srmName(srm){
+  if (srm < 4)  return '稻草黄';
+  if (srm < 6)  return '淡金';
+  if (srm < 9)  return '金黄';
+  if (srm < 13) return '琥珀';
+  if (srm < 18) return '铜红';
+  if (srm < 25) return '深棕';
+  if (srm < 35) return '黑褐';
+  return '墨黑';
+}
+
+/** Tinseth 苦度利用率
+ *  minutes = 酒花在煮沸锅中「停留」的分钟数（= 关火前多少分钟投放），不是「第几分钟投放」
+ *  停留时长不可能超过煮沸总时长，故对 boil 方式做上封顶；煮得越久异构越多，tf 单调递增但有上限 */
+function utilization(og, method, minutes, boilMinutes){
+  const bigness = 1.65 * Math.pow(0.000125, og - 1);
+  const boil = Math.max(0, num(boilMinutes));
+  let t, k = 1;
+  if (method === 'whirl')       { t = 5; }                  /* 回旋：按等效 5 min 煮沸折算 */
+  else if (method === 'dryhop') { t = 0; }                  /* 干投：不计入 IBU */
+  else if (method === 'first')  { t = boil; k = 1.10; }     /* 头道麦汁：全程煮沸，利用率 +10% */
+  else                          { t = Math.min(num(minutes), boil); }   /* 煮沸：封顶到总时长 */
+  const tf = t <= 0 ? 0 : (1 - Math.exp(-0.04*t)) / 4.15;
+  return bigness * tf * k;
+}
+
+/** 主计算 */
+function compute(state){
+  const V = Math.max(1, num(state.batch.volume));           /* 成品体积 L */
+  const eff = clamp(num(state.batch.efficiency)/100, .3, 1);
+  const boil = num(state.batch.boil);
+  const evapPerH = num(state.batch.evap)/100;
+  const evapTotal = clamp(evapPerH * (boil/60), 0, .45);
+
+  const postBoilV = V;                                       /* 煮沸结束体积≈成品体积 */
+  const preBoilV  = postBoilV / (1 - evapTotal);
+
+  /* ---- 投料 ---- */
+  let grainKg = 0, fermPts = 0, totalPts = 0, nonFerm = 0;
+  let colorMcu = 0, baseKg = 0, caraKg = 0, roastKg = 0, wheatOatKg = 0, darkExtract = 0;
+  let gristKg = 0, adjunctKg = 0, fermExtractKg = 0, totalExtractKg = 0;
+
+  state.malts.forEach(m => {
+    const kg = Math.max(0, num(m.qty));
+    if (kg <= 0) return;
+    const e = num(m.e), c = num(m.c);
+    grainKg += kg; gristKg += kg;
+    const pts = kg * e * KEX * eff / V;
+    totalPts += pts; fermPts += pts;
+    const exKg = kg * e/100 * eff;
+    totalExtractKg += exKg; fermExtractKg += exKg;
+    colorMcu += kg * 2.2046 * (c/1.97) / (V/3.7854);
+    /* 结构统计 */
+    const share = 1;
+    if (c >= 200) { roastKg += kg; darkExtract += kg*e; }
+    else if (c >= 25) caraKg += kg;
+    if (e >= 80 && c < 25) baseKg += kg;
+    if (/小麦|燕麦|青稞/.test(m.n||'')) wheatOatKg += kg;
+  });
+
+  state.sugars.forEach(s => {
+    const kg = Math.max(0, num(s.qty));
+    if (kg <= 0) return;
+    const e = num(s.e), fer = num(s.fer)/100;
+    const needMash = s.mash !== false;
+    adjunctKg += kg;
+    const pts = kg * e * KEX * (needMash ? eff : 1) / V;
+    totalPts += pts; fermPts += pts*fer; nonFerm += pts*(1-fer);
+    const exKg = kg * e/100 * (needMash ? eff : 1);
+    totalExtractKg += exKg; fermExtractKg += exKg*fer;
+  });
+  if (state.sugars.some(s => /糖|蜂蜜/.test(s.n||''))) { /* 简单糖不参与颜色 */ }
+
+  const okPts = totalPts > 0.5;
+  const OG = 1 + totalPts/1000;
+
+  /* ---- 发酵 ---- */
+  const ADF = clamp(num(state.atten)/100, .05, .99);
+  const fgPts = fermPts*(1-ADF) + nonFerm;
+  const FG = 1 + fgPts/1000;
+  const ABV = (76.08*(OG-FG)/(1.775-OG))*(FG/0.794);
+  const ADFreal = (OG-FG)/(OG-1)*100;
+  const RDF = ADFreal * 0.819;
+  const ogP = sgToPlato(OG), fgP = sgToPlato(FG);
+
+  /* ---- 苦度 ---- */
+  let ibu = 0, bitterG = 0, aromaG = 0, hopG = 0, cohSum = 0, cohW = 0;
+  const hopBreak = [];
+  state.hops.forEach((h, hi) => {
+    const g = Math.max(0, num(h.qty));
+    if (g <= 0) return;
+    const aa = num(h.aa)/100;
+    hopG += g;
+    const U = utilization(OG, h.method, h.time, boil);
+    const ib = g * aa * U * 1000 / V;
+    ibu += ib;
+    hopBreak.push({ idx:hi, n:h.n, o:h.o, g, ib, aa:num(h.aa), method:h.method, time:num(h.time) });
+    const isLate = h.method === 'whirl' || h.method === 'dryhop' ||
+                   (h.method === 'boil' && num(h.time) <= 15) || h.method === 'first';
+    if (isLate) aromaG += g; else bitterG += g;
+    if (num(h.ch) > 0) { cohSum += num(h.ch)*g; cohW += g; }
+  });
+  const cohAvg = cohW > 0 ? cohSum/cohW : null;
+  const ibuMax = hopBreak.reduce((a,x) => Math.max(a, x.ib), 0);
+
+  /* ---- 色度 ---- */
+  const SRM = totalPts > 0 ? 1.4922 * Math.pow(Math.max(colorMcu, .01), 0.6859) : 2;
+  const EBC = SRM * 1.97;
+
+  /* ---- 比值 ---- */
+  const ogPts = (OG-1)*1000;
+  const bugu = ogPts > 0 ? ibu/ogPts : 0;
+
+  /* ---- 水量 ---- */
+  const mashWater = gristKg * num(state.batch.ratio);
+  const absorbed  = gristKg * num(state.batch.absorb);
+  const firstRun  = Math.max(0, mashWater - absorbed);
+  const sparge    = preBoilV - firstRun;
+  const totalWater = mashWater + Math.max(0, sparge);
+  const wetBsg = gristKg * 3;                                /* 湿麦糟 = 干投料 × 3 */
+
+  /* ---- 风味轮廓（估算） ---- */
+  const gristTot = gristKg + adjunctKg;
+  const caraShare = gristTot > 0 ? caraKg/gristTot : 0;
+  const roastShare = gristTot > 0 ? roastKg/gristTot : 0;
+  const wheatShare = gristTot > 0 ? wheatOatKg/gristTot : 0;
+  const baseShare  = gristTot > 0 ? baseKg/gristTot : 0;
+  const sugarShare = totalPts > 0 ? Math.max(0,(totalPts - state.malts.reduce((a,m)=>a+Math.max(0,num(m.qty))*num(m.e)*KEX*eff/V,0))/totalPts) : 0;
+  const aromaGPL = aromaG / V;
+
+  const y = state.yeastRef || {};
+  const temp = num(state.temp);
+  const optLo = y.opt ? y.opt[0] : 18, optHi = y.opt ? y.opt[1] : 22;
+  const tempBias = clamp((temp - optLo)/Math.max(1,(optHi-optLo)), -1, 1.6);
+
+  const flavor = {
+    sw: clamp(2.4 + (fgPts - 8)*0.36 + caraShare*10 + nonFerm/Math.max(totalPts,1)*26, 0, 10),
+    bi: clamp(0.9 + bugu*7.2, 0, 10),
+    ho: clamp(0.9 + aromaGPL*1.85, 0, 10),
+    es: clamp((y.form === '下面' ? 2.2 : 5.0) + (y.ester||0) + tempBias*1.9, 0, 10),
+    bo: clamp(1.0 + ogPts*0.058 + (fgPts-8)*0.17 + wheatShare*13 - sugarShare*6, 0, 10),
+    ro: clamp(roastShare*62, 0, 10)
+  };
+
+  /* ---- 水量比 ---- */
+  const clso = num(state.water.so4) > 0 ? num(state.water.cl)/num(state.water.so4) : 0;
+  /* 糖化醪 pH 估算：以剩余碱度为抬升项，深色/焦香麦芽的酸性物质为下拉项 */
+  const pHest = clamp(5.42 + num(state.water.alk)*0.0035 - roastShare*1.3 - caraShare*0.35, 4.8, 6.4);
+
+  /* ---- 酵母用量 ---- */
+  const pitchG = num(state.pitch) * V;
+
+  return {
+    V, eff, boil, evapTotal, preBoilV, postBoilV,
+    grainKg, adjunctKg, gristKg, totalExtractKg, fermExtractKg,
+    ogPts, OG, FG, ABV, ADFreal, RDF, ogP, fgP, fgPts,
+    totalPts, fermPts, nonFerm,
+    ibu, bugu, hopG, bitterG, aromaG, cohAvg, hopBreak, ibuMax, aromaGPL,
+    SRM, EBC, colorHex: srmToHex(SRM),
+    mashWater, absorbed, firstRun, sparge, totalWater, wetBsg,
+    baseShare, caraShare, roastShare, wheatShare, sugarShare, gristTot,
+    flavor, clso, pHest, pitchG, okPts
+  };
+}
+
+/* ---- 补充常见商品化麦芽 ---- */
+MALTS.push(
+  {id:'cn-coffee', n:'国产咖啡麦芽', b:'国内制麦厂', o:'CN', c:400, e:70, t:'roast', s:'ref',
+   note:'深色焙烤麦芽，带来咖啡、可可与微苦回甘。各厂牌色度差异较大（约 300–600 EBC），请以厂商 COA 为准，用量建议 2–8%。'},
+  {id:'im-coffee', n:'咖啡麦芽 Coffee Malt', b:'Simpsons', o:'IM', c:400, e:70, t:'roast', s:'vendor',
+   note:'英式深色特种麦芽，咖啡与烤面包风味明显，常用于世涛、波特与深色艾尔调色调味。'}
+);
+/* 常用别名，便于搜索命中（含口语译名） */
+const ALIAS = {
+  'cn-qdh':'青岛花 大花 qingdao tsingdao flower',
+  'im-cascade':'卡斯卡特 卡斯卡德 级联',
+  'cn-pils':'比尔森 皮尔森 pilsner pils',
+  'cn-wheat':'麦芽 小麦 wheat',
+  'cn-munich':'慕尼黑 munich',
+  'cn-choco':'朱古力 可可 chocolate',
+  'cn-black':'烤黑 black patent',
+  'cn-coffee':'咖啡 coffee',
+  'cn-pale-7':'淡色 基础 pale base',
+  'cn-a01':'安琪 美式艾尔 american ale',
+  'im-coffee':'咖啡 coffee',
+  'cn-cara60':'水晶 焦香 caramel crystal',
+  'cn-cara120':'水晶 焦香 caramel crystal',
+  'im-saaz':'萨兹 捷克 saaz',
+  'cn-sucrose':'白糖 蔗糖 sugar',
+  'im-lactose':'乳糖 lactose 不可发酵',
+  'cn-bf27':'安琪 拉格 lager weihenstephan',
+  'cn-bf16':'安琪 拉格 lager',
+  'cn-cn36':'安琪 英式 english',
+  'cn-cy115':'安琪 英式 english',
+  'cn-wa18':'安琪 小麦 weizen wheat',
+  'cn-cs31':'安琪 赛松 saison 比利时',
+  'cn-na05':'安琪 无醇 无酒精 non alcohol',
+  'im-us05':'美式艾尔 american ale 05',
+  'im-w34':'拉格 lager 3470'
+};
+
+/* =========================================================================
+   3 · 分析与建议
+   ========================================================================= */
+/** 单项落区评分：区间内 100 分，超出后按超出量线性扣分 */
+function rangeScore(v, rng){
+  const [lo,hi] = rng;
+  if (v >= lo && v <= hi) return 100;
+  const span = Math.max(hi-lo, 1e-6);
+  const tol = span * 0.75;
+  const d = v < lo ? lo-v : v-hi;
+  return clamp(100 - d/tol*100, 0, 100);
+}
+
+/** 风格匹配 */
+function analyzeMatch(r, st){
+  if (!st) return { score:0, items:[] };
+  const items = [
+    { k:'OG',  label:'原麦汁浓度', v:r.OG,  rng:st.og,  w:0.20, txt:'1.'+String(Math.round((r.OG-1)*1000)).padStart(3,'0'), unit:'' },
+    { k:'FG',  label:'终点比重',   v:r.FG,  rng:st.fg,  w:0.15, txt:'1.'+String(Math.round((r.FG-1)*1000)).padStart(3,'0'), unit:'' },
+    { k:'ABV', label:'酒精度',     v:r.ABV, rng:st.abv, w:0.20, txt:fmt(r.ABV,1), unit:'%' },
+    { k:'IBU', label:'苦度',       v:r.ibu, rng:st.ibu, w:0.25, txt:fmt(r.ibu,0), unit:'IBU' },
+    { k:'SRM', label:'色度',       v:r.SRM, rng:st.srm, w:0.20, txt:fmt(r.EBC,0), unit:'EBC' }
+  ];
+  items.forEach(it => {
+    it.score = rangeScore(it.v, it.rng);
+    it.state = it.v >= it.rng[0] && it.v <= it.rng[1] ? 'ok'
+             : it.score >= 65 ? 'warn' : 'bad';
+    it.delta = it.v < it.rng[0] ? -(it.rng[0]-it.v) : (it.v > it.rng[1] ? it.v-it.rng[1] : 0);
+  });
+  const score = Math.round(items.reduce((a,it) => a + it.score*it.w, 0));
+  return { score, items };
+}
+
+/** 配方体检 */
+function analyzeAlerts(r, state, st){
+  const out = [];
+  const push = (level,t,b) => out.push({level,t,b});
+
+  /* 风格区间 */
+  if (st){
+    const ogBad = r.OG < st.og[0] || r.OG > st.og[1];
+    const ibuBad = r.ibu < st.ibu[0] || r.ibu > st.ibu[1];
+    const srmBad = r.SRM < st.srm[0] || r.SRM > st.srm[1];
+    if (ogBad) push(r.OG > st.og[1] ? 'warn' : 'warn', '原麦汁浓度偏离风格',
+      `当前 OG ${r.OG.toFixed(3)}，目标区间 ${st.og[0].toFixed(3)}–${st.og[1].toFixed(3)}。${r.OG>st.og[1]?'可减少投料量或提高糖化效率以外的收得率设定。':'可增加基础麦芽用量或提高糖化效率。'}`);
+    if (ibuBad) push(r.ibu > st.ibu[1] ? 'warn' : 'info', '苦度偏离风格',
+      `当前 ${r.ibu.toFixed(0)} IBU，目标 ${st.ibu[0]}–${st.ibu[1]} IBU。${r.ibu>st.ibu[1]?'可缩减苦花用量或缩短苦花煮沸时间。':'可增加苦花用量或延长煮沸。'}`);
+    if (srmBad) push('info', '色度偏离风格',
+      `当前 ${r.EBC.toFixed(0)} EBC（SRM ${r.SRM.toFixed(1)}），目标 SRM ${st.srm[0]}–${st.srm[1]}。可用深色麦芽微量调整（每 20 L 加 20 g 黑麦芽约提升 2–3 SRM）。`);
+  }
+
+  /* 酵母温度 */
+  const y = state.yeastRef;
+  if (y){
+    const t = num(state.temp);
+    if (t < y.tmp[0] || t > y.tmp[1]) push('bad', '发酵温度超出菌株适用范围',
+      `${y.n} 适用 ${y.tmp[0]}–${y.tmp[1]}℃，当前设定 ${t}℃。温度过低会滞发酵甚至停止，过高会带来溶剂味与过量酯香。`);
+    else if (y.opt && (t < y.opt[0] || t > y.opt[1])) push('info', '发酵温度处于适用区间边缘',
+      `建议区间为 ${y.opt[0]}–${y.opt[1]}℃，当前 ${t}℃。`);
+    if (r.ABV > y.tol && y.tol > 0) push('bad', '预计酒精度超过酵母耐受上限',
+      `预计 ${r.ABV.toFixed(1)}% ABV，该菌株耐受约 ${y.tol}%。建议换更高耐受菌株或降低 OG，并加大接种量。`);
+    else if (y.tol > 0 && r.ABV > y.tol - 1) push('warn', '酒精度接近酵母耐受上限',
+      `预计 ${r.ABV.toFixed(1)}%，耐受 ${y.tol}%。高渗环境会抑制后段发酵，建议加大接种量并补足营养盐。`);
+    const rec = y.rate && y.rate.includes('g/hL');
+    const lo = rec ? parseFloat(y.rate)/10 : 0.5, hi = rec ? parseFloat(y.rate.split('–')[1]||y.rate)/10 : 1.0;
+    if (lo && num(state.pitch) < lo*0.8) push('warn', '接种量偏低',
+      `当前 ${num(state.pitch).toFixed(2)} g/L（${r.pitchG.toFixed(0)} g），该菌株推荐 ${(lo).toFixed(2)}–${(hi).toFixed(2)} g/L。接种不足会导致酯类与杂醇增多、双乙酰残留、发酵不彻底。`);
+    else if (hi && num(state.pitch) > hi*1.3) push('info', '接种量偏高',
+      `当前 ${num(state.pitch).toFixed(2)} g/L，推荐上限约 ${hi.toFixed(2)} g/L。过量接种会削减特征酯香。`);
+    if (/diastaticus/.test(y.sp||'')) push('cn', '含 STA1 基因菌株，注意分线管理',
+      `${y.n} 属 diastaticus 变种，可持续分解糊精，装瓶后存在缓慢过度发酵（瓶爆）风险。务必充分发酵到 FG 稳定后再装瓶，并与常规菌株分开器具。`);
+  }
+
+  /* 麦芽结构 */
+  if (r.gristKg > 0){
+    if (r.baseShare < 0.6) push('warn', '基础麦芽占比偏低',
+      `可提供酶源的基础麦芽仅占 ${(r.baseShare*100).toFixed(0)}%。低于 60% 时糖化力可能不足，建议补足基础麦芽或延长糖化时间、添加糖化酶。`);
+    if (r.roastShare > 0.15) push('warn', '深色焙烤麦芽比例偏高',
+      `占比 ${(r.roastShare*100).toFixed(1)}%。超过 15% 易带来涩感、焦糊苦与发酵抑制。`);
+    if (r.wheatShare > 0.4) push('warn', '小麦/燕麦比例偏高',
+      `占比 ${(r.wheatShare*100).toFixed(0)}%。蛋白与 β-葡聚糖高，易造成麦汁黏稠、洗糟缓慢与过滤困难，建议加稻壳或做 β-葡聚糖休止。`);
+    if (r.sugarShare > 0.2) push('warn', '可发酵糖比例偏高',
+      `糖类贡献约 ${(r.sugarShare*100).toFixed(0)}% 的提取物。超过 20% 会使风味变薄、出现类似苹果的乙醛感。`);
+  } else {
+    push('bad', '尚未添加麦芽', '配方中没有麦芽，无法计算麦汁浓度。请从下方原料库添加，或套用一个配方模板。');
+  }
+
+  /* 酒花 */
+  if (r.hopG <= 0) push('warn', '尚未添加酒花', '无酒花的啤酒缺乏防腐力与苦味骨架，请至少添加一次苦花。');
+  else {
+    if (r.aromaGPL > 8) push('info', '酒花投加量很大', `后期与干投合计 ${r.aromaGPL.toFixed(1)} g/L，酒花损耗与吸附损失会显著增加，实际收得率可能下降 5–10%。`);
+    if (state.hops.some(h => h.method === 'dryhop') && num(state.temp) > 22)
+      push('info', '干投期间温度偏高', '建议干投温度 ≤20℃，高温会萃取出草青味与涩味，并加速酒花油损失。');
+    if (r.cohAvg !== null && r.cohAvg > 38)
+      push('info', '苦味质感偏粗犷', `加权合葎草酮约 ${r.cohAvg.toFixed(0)}%（占 α-酸）。该值越高苦味越尖锐持久，可搭配低合葎草酮花柔化。`);
+  }
+
+  /* 工艺 */
+  if (r.sparge < 0) push('bad', '洗糟水量为负', '糖化料水比过大，第一道麦汁已超过目标煮沸前体积。请降低料水比或提高蒸发强度设定。');
+  else if (r.sparge < r.preBoilV*0.15) push('info', '洗糟水偏少', '洗糟水不足会导致糖化收得率下降，建议降低料水比以留出洗糟空间。');
+  if (num(state.batch.ratio) < 2.5) push('warn', '糖化料水比过稠', '低于 2.5 L/kg 时醪液搅拌困难、糖化不均，建议 2.8–3.5 L/kg。');
+  if (num(state.batch.ratio) > 4.5) push('info', '糖化料水比偏稀', '高于 4.5 L/kg 会稀释酶浓度、延长糖化，且洗糟空间减少。');
+  const mt = num(state.process.mashTemp);
+  if (mt < 63) push('info', '糖化温度偏低（偏干）', `${mt}℃ 有利于 β-淀粉酶，产物以麦芽糖为主，酒体更干、发酵度更高。`);
+  else if (mt > 68) push('info', '糖化温度偏高（偏甜）', `${mt}℃ 有利于 α-淀粉酶，糊精比例上升，酒体更饱满、发酵度更低。`);
+  if (r.eff > 0.85) push('info', '糖化效率设定偏高', `${(r.eff*100).toFixed(0)}% 属高效设备水平，若实际达不到会造成成品浓度低于预期。`);
+
+  /* BSG 特色提示 */
+  const bsg = state.sugars.find(s => s.lib === 'cn-bsg' || /麦糟/.test(s.n||''));
+  if (bsg && num(bsg.qty) > 0){
+    const share = r.gristTot > 0 ? num(bsg.qty)/r.gristTot : 0;
+    if (share > 0.05) push('warn', '麦糟添加比例偏高',
+      `占投料干重 ${(share*100).toFixed(1)}%。麦糟不含可发酵提取物，过量会带来涩味、浑浊与过滤困难，建议 ≤5%。`);
+    else push('cn', '麦糟（BSG）回添已启用',
+      `按干重 ${num(bsg.qty).toFixed(2)} kg 计，不贡献 OG，仅提供膳食纤维与谷物风味。本次糖化将产出约 ${r.wetBsg.toFixed(1)} kg 湿麦糟（含水约 80%），可作为后续麦糟综合利用的原料基准。`);
+  }
+
+  /* 国产化结构提示 */
+  const hopGAll = state.hops.reduce((a,h)=>a+Math.max(0,num(h.qty)),0);
+  const hopCnG  = state.hops.reduce((a,h)=>a+(h.o==='CN'?Math.max(0,num(h.qty)):0),0);
+  if (hopGAll > 0 && hopCnG/hopGAll < 0.5)
+    push('cn','酒花以进口为主', `当前国产酒花占总投加量的 ${(hopCnG/hopGAll*100).toFixed(0)}%。国产可选路径：青岛大花（苦香兼用，α-酸 6–8%）、马可波罗（高 α-酸苦花 12–13%）、余乐比特 / 阜北-1（香型花）。替换时按 α-酸等量折算用量即可保持 IBU 不变。`);
+  if (y && y.o !== 'CN')
+    push('cn','酵母为进口菌株', `${y.n}（${y.b}）系进口菌株。国产替代路径：安琪 A01（美式艾尔，发酵度 75–83%）、BF16 / BF27（拉格，80–85%）、CN36 / CY115（英式艾尔）、WA18（德式小麦）、CS31（比利时赛松，83–94%）、FG11（热带 IPA）、LA03（新英格兰 IPA）、NA05（无醇）。切换后本平台会自动同步推荐发酵度与温度区间。`);
+
+  /* 水 */
+  if (r.clso > 0 && r.clso > 2.0) push('info', '氯硫比偏酒花向', `Cl:SO₄ = ${r.clso.toFixed(2)}，突出干爽与苦味表现，适合 IPA、皮尔森。`);
+  if (r.clso > 0 && r.clso < 0.5) push('info', '氯硫比偏麦芽向', `Cl:SO₄ = ${r.clso.toFixed(2)}，突出麦芽甜感与圆润度，适合世涛、英式艾尔。`);
+  if (num(state.water.alk) > 150) push('warn', '剩余碱度偏高', '高碱度会抬升糖化醪 pH，抑制淀粉酶活性并萃出谷物涩味。深色麦芽配方影响较小，淡色配方需加酸或稀释。');
+
+  return out.sort((a,b) => {
+    const w = { bad:0, warn:1, cn:2, info:3, ok:4 };
+    return w[a.level] - w[b.level];
+  });
+}
+
+/** 国产 / 进口替代建议 */
+function analyzeSwaps(r, state){
+  const swaps = [];
+  const isCN = o => o === 'CN';
+
+  /* 麦芽 */
+  state.malts.forEach(m => {
+    if (num(m.qty) <= 0) return;
+    const src = MALTS.find(x => x.id === m.lib);
+    if (!src) return;
+    const want = isCN(src.o) ? 'IM' : 'CN';
+    const cands = MALTS.filter(x => x.o === want && x.t === src.t)
+      .map(x => ({ x, d: Math.abs(Math.log((x.c||1)/(src.c||1))) + Math.abs(x.e - src.e)/40 }))
+      .sort((a,b) => a.d - b.d);
+    const best = cands[0];
+    if (!best || best.d > 1.6) return;
+    swaps.push({
+      kind:'麦芽', from:src.n, to:best.x.n, toId:best.x.id,
+      why:`同为基础/特种/焙烤类，色度 ${src.c} → ${best.x.c} EBC，提取率 ${src.e}% → ${best.x.e}%。${isCN(src.o)?'作为进口风格参照，或用于出口型配方。':'可替代进口料，降低采购成本与交期风险。'}`
+    });
+  });
+
+  /* 酒花 */
+  state.hops.forEach(h => {
+    if (num(h.qty) <= 0) return;
+    const src = HOPS.find(x => x.id === h.lib);
+    if (!src) return;
+    const want = isCN(src.o) ? 'IM' : 'CN';
+    const cands = HOPS.filter(x => x.o === want)
+      .map(x => ({ x, d: Math.abs(x.aa - src.aa)/Math.max(src.aa,3) + (x.use === src.use ? 0 : 0.6) }))
+      .sort((a,b) => a.d - b.d);
+    const best = cands[0];
+    if (!best || best.d > 1.1) return;
+    swaps.push({
+      kind:'酒花', from:src.n, to:best.x.n, toId:best.x.id,
+      why:`α-酸 ${src.aa}% → ${best.x.aa}%，均为${best.x.use === 'dual' ? '苦香兼用' : best.x.use === 'bitter' ? '苦花' : '香花'}。${isCN(src.o)?'进口对照品种。':'国产替代后建议按 α-酸等量折算用量，并重新评估香气方向。'}`
+    });
+  });
+
+  /* 酵母 */
+  const y = state.yeastRef;
+  if (y){
+    const want = isCN(y.o) ? 'IM' : 'CN';
+    const cands = YEASTS.filter(x => x.o === want && x.form === y.form)
+      .map(x => {
+        const ov = Math.min(x.tmp[1], y.tmp[1]) - Math.max(x.tmp[0], y.tmp[0]);
+        const attD = Math.abs((x.att[0]+x.att[1])/2 - (y.att[0]+y.att[1])/2);
+        return { x, d: (ov > 0 ? 0 : 1.4) + attD/25 };
+      })
+      .sort((a,b) => a.d - b.d);
+    const best = cands[0];
+    if (best && best.d < 1.2){
+      swaps.push({
+        kind:'酵母', from:y.n, to:best.x.n, toId:best.x.id,
+        why:`同为${best.x.form}发酵，发酵度 ${y.att[0]}–${y.att[1]}% → ${best.x.att[0]}–${best.x.att[1]}%，温度区间 ${y.tmp[0]}–${y.tmp[1]}℃ → ${best.x.tmp[0]}–${best.x.tmp[1]}℃。${isCN(y.o)?'进口菌株对照。':'国产菌株替代，供货与价格更稳定。'}`
+      });
+    }
+  }
+
+  /* 去重 */
+  const seen = new Set();
+  return swaps.filter(s => {
+    const k = s.kind + s.from + s.to;
+    if (seen.has(k)) return false;
+    seen.add(k); return true;
+  }).slice(0, 6);
+}
+
+/* =========================================================================
+   4 · 状态
+   ========================================================================= */
+const $  = (s, root) => (root||document).querySelector(s);
+const $$ = (s, root) => Array.from((root||document).querySelectorAll(s));
+const escapeHtml = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+const S = {
+  batch:{ volume:20, efficiency:72, boil:60, evap:10, ratio:3.2, absorb:0.85 },
+  water:{ so4:80, cl:60, alk:40, ca:60 },
+  process:{ mashTemp:66, mashTime:60, mashOut:76 },
+  styleId:'18b',
+  malts:[], sugars:[], hops:[],
+  yeastId:'cn-a01', yeastRef:null,
+  pitch:0.8, atten:79, temp:19
+};
+
+const styleById = id => STYLES.find(s => s.id === id) || STYLES[0];
+const maltById  = id => MALTS.find(m => m.id === id);
+const hopById   = id => HOPS.find(h => h.id === id);
+const yeastById = id => YEASTS.find(y => y.id === id);
+const sugarById = id => SUGARS.find(s => s.id === id);
+const originBadge = o => o === 'CN'
+  ? '<span class="badge badge--cn">国产</span>'
+  : '<span class="badge badge--mute">进口</span>';
+
+/* 酵母特色酯香加成（在基础发酵方式之上叠加） */
+function yeastEster(y){
+  let e = 0;
+  const isWheat = /小麦|Weizen|Wheat|Weiss|Hefeweizen/.test(y.n);
+  if (isWheat) e += 3.0;
+  else if (/diastaticus/.test(y.sp||'')) e += 1.4;
+  if (!isWheat && /赛松|Saison|比利时|Belgian|Tripel|T-58/.test(y.n)) e += 1.6;
+  if (/NA05|无醇/.test(y.n)) e -= 1.4;
+  if (y.floc === '低') e += 0.4;
+  return e;
+}
+
+function rowFromMalt(id, qty){
+  const m = maltById(id);
+  if (!m) return null;
+  return { lib:m.id, n:m.n, b:m.b, o:m.o, c:m.c, e:m.e, t:m.t, qty:num(qty) };
+}
+function rowFromSugar(id, qty){
+  const s = sugarById(id);
+  if (!s) return null;
+  return { lib:s.id, n:s.n, o:s.o, e:s.e, fer:s.fer, mash:s.mash!==false, qty:num(qty) };
+}
+function rowFromHop(id, qty, method, time){
+  const h = hopById(id);
+  if (!h) return null;
+  return { lib:h.id, n:h.n, o:h.o, aa:h.aa, ch:h.ch, qty:num(qty), method:method||'boil', time:num(time) };
+}
+
+/* =========================================================================
+   5 · 渲染
+   ========================================================================= */
+/* ---- 目标风格下拉 ---- */
+let styleFamFilter = 'all';
+function renderStyleSelect(){
+  const sel = $('#selStyle');
+  const fams = [['ale','艾尔 Ale'],['lager','拉格 Lager'],['special','特色 / 其他']];
+  sel.innerHTML = fams
+    .filter(([f]) => styleFamFilter === 'all' || f === styleFamFilter)
+    .map(([f,label]) => {
+      const list = STYLES.filter(s => s.fam === f);
+      if (!list.length) return '';
+      return `<optgroup label="${label}">` + list.map(s =>
+        `<option value="${s.id}"${s.id===S.styleId?' selected':''}>${escapeHtml(s.cn)} · ${escapeHtml(s.n)}</option>`
+      ).join('') + '</optgroup>';
+    }).join('');
+  const st = styleById(S.styleId);
+  $('#styleDesc').textContent = st.d;
+}
+function renderStyleTargets(r){
+  const st = styleById(S.styleId);
+  const rows = [
+    ['原麦汁 OG',  st.og[0].toFixed(3)+'–'+st.og[1].toFixed(3),  r.OG,  r.OG>=st.og[0]&&r.OG<=st.og[1]],
+    ['终点 FG',    st.fg[0].toFixed(3)+'–'+st.fg[1].toFixed(3),  r.FG,  r.FG>=st.fg[0]&&r.FG<=st.fg[1]],
+    ['酒精度',      st.abv[0]+'–'+st.abv[1]+'%',                r.ABV, r.ABV>=st.abv[0]&&r.ABV<=st.abv[1]],
+    ['苦度 IBU',    st.ibu[0]+'–'+st.ibu[1],                    r.ibu, r.ibu>=st.ibu[0]&&r.ibu<=st.ibu[1]],
+    ['色度 SRM',    st.srm[0]+'–'+st.srm[1],                    r.SRM, r.SRM>=st.srm[0]&&r.SRM<=st.srm[1]]
+  ];
+  $('#styleTargets').innerHTML = rows.map(([l,rg],i) => `
+    <div class="metric" data-st="${rows[i][3]?'ok':'warn'}" style="padding:7px 9px${i===4?';grid-column:span 2':''}">
+      <div class="metric__k" style="font-size:10px">${l}</div>
+      <div class="metric__v" style="font-size:15px">${rg}</div>
+    </div>`).join('');
+}
+
+/* ---- 配方表 ---- */
+function optGroupHtml(list, selId, extra){
+  const g = { CN:[], IM:[] };
+  list.forEach(x => (g[x.o]||g.IM).push(x));
+  return ['CN','IM'].map(o => {
+    if (!g[o].length) return '';
+    return `<optgroup label="${o==='CN'?'国产':'进口'}">` +
+      g[o].map(x => `<option value="${x.id}"${x.id===selId?' selected':''}>${escapeHtml(x.n)} · ${escapeHtml(x.b)}${extra?extra(x):''}</option>`).join('') +
+      '</optgroup>';
+  }).join('');
+}
+
+function renderMalts(){
+  const tb = $('#tblMalt tbody');
+  if (!S.malts.length){ tb.innerHTML = `<tr><td colspan="7"><div class="empty">尚未添加麦芽。点右上角「+ 添加麦芽」，或从下方原料库中点击添加。</div></td></tr>`; return; }
+  tb.innerHTML = S.malts.map((m,i) => `
+    <tr data-i="${i}">
+      <td><select class="sel" data-role="lib">${optGroupHtml(MALTS, m.lib, x=>`（${x.c} EBC）`)}</select></td>
+      <td><input class="inp" type="number" min="0" step="0.05" data-role="qty" value="${m.qty}"></td>
+      <td><input class="inp" type="number" min="1" step="1" data-role="c" value="${m.c}"></td>
+      <td><input class="inp" type="number" min="30" max="100" step="0.5" data-role="e" value="${m.e}"></td>
+      <td class="c"><span class="rct__pct" data-pct="${i}">—</span></td>
+      <td class="c">${originBadge(m.o)}</td>
+      <td><div class="rct__ops">
+        <button class="btn btn--sm btn--ghost btn--icon" data-dup="malt" data-i="${i}" title="复制此行" aria-label="复制">⧉</button>
+        <button class="btn btn--sm btn--danger-ghost btn--icon rct__del" data-del="malt" data-i="${i}" title="删除" aria-label="删除">×</button>
+      </div></td>
+    </tr>`).join('');
+}
+function renderSugars(){
+  const tb = $('#tblSugar tbody');
+  if (!S.sugars.length){ tb.innerHTML = `<tr><td colspan="6"><div class="empty">暂无糖或辅料。糖可提高酒精度并收干酒体；乳糖、麦芽糊精可提升残甜与酒体。</div></td></tr>`; return; }
+  tb.innerHTML = S.sugars.map((s,i) => `
+    <tr data-i="${i}">
+      <td><select class="sel" data-role="lib">${optGroupHtml(SUGARS, s.lib, x=>`（发酵性 ${x.fer}%）`)}</select></td>
+      <td><input class="inp" type="number" min="0" step="0.05" data-role="qty" value="${s.qty}"></td>
+      <td><input class="inp" type="number" min="0" max="100" step="1" data-role="fer" value="${s.fer}"></td>
+      <td class="c"><span class="rct__pct" data-pct="${i}">—</span></td>
+      <td class="c">${originBadge(s.o)}</td>
+      <td><div class="rct__ops">
+        <button class="btn btn--sm btn--ghost btn--icon" data-dup="sugar" data-i="${i}" title="复制此行" aria-label="复制">⧉</button>
+        <button class="btn btn--sm btn--danger-ghost btn--icon rct__del" data-del="sugar" data-i="${i}" title="删除" aria-label="删除">×</button>
+      </div></td>
+    </tr>`).join('');
+}
+function renderHops(){
+  const tb = $('#tblHop tbody');
+  if (!S.hops.length){ tb.innerHTML = `<tr><td colspan="8"><div class="empty">尚未添加酒花。建议至少一次苦花（煮沸 60 min，即开始即投）与一次香气添加（回旋或干投）。</div></td></tr>`; return; }
+  const methods = [['boil','煮沸'],['whirl','回旋'],['dryhop','干投'],['first','头道麦汁']];
+  tb.innerHTML = S.hops.map((h,i) => `
+    <tr data-i="${i}">
+      <td><select class="sel" data-role="lib">${optGroupHtml(HOPS, h.lib, x=>`（α ${x.aa}%）`)}</select></td>
+      <td><input class="inp" type="number" min="0" step="1" data-role="qty" value="${h.qty}"></td>
+      <td><input class="inp" type="number" min="0.5" max="22" step="0.5" data-role="aa" value="${h.aa}"></td>
+      <td class="m-${h.method}"><select class="sel" data-role="method">${methods.map(([v,l])=>`<option value="${v}"${h.method===v?' selected':''}>${l}</option>`).join('')}</select></td>
+      <td>${h.method==='dryhop'
+            ? `<input class="inp" type="number" min="1" max="14" step="1" data-role="time" value="${h.time}">`
+            : `<input class="inp" type="number" min="0" max="120" step="1" data-role="time" value="${h.time}">`}
+          <div class="cell-hint" data-hint>—</div></td>
+      <td class="c"><span class="ibu-cell"><b data-ibu>—</b><span class="mini-bar"><i data-ibubar style="width:0"></i></span></span></td>
+      <td class="c">${originBadge(h.o)}</td>
+      <td class="c" style="white-space:nowrap">
+        <button class="btn btn--sm btn--ghost btn--icon" data-dup="hop" data-i="${i}" title="复制此行" aria-label="复制">⧉</button>
+        <button class="btn btn--sm btn--danger-ghost btn--icon rct__del" data-del="hop" data-i="${i}" title="删除" aria-label="删除">×</button>
+      </td>
+    </tr>`).join('');
+}
+
+/** 酒花时间的自然语言换算，消除「第几分钟加」的歧义 */
+function hopTimeHint(h){
+  const t = num(h.time), boil = num(S.batch.boil);
+  if (h.method === 'dryhop') return `发酵第 ${t} 天投`;
+  if (h.method === 'whirl')  return `回旋 20 min`;
+  if (h.method === 'first')  return `头道麦汁投`;
+  if (t <= 0) return '关火时投';
+  if (t > boil) return `超出煮沸 ${fmt(t-boil,0)}′`;
+  if (t >= boil) return '开始即投';
+  return `关火前 ${fmt(t,0)}′ 投`;
+}
+const METHOD_COLOR = { boil:'#B06C31', whirl:'#6E9D6A', dryhop:'#8B79B0', first:'#5A8FB0' };
+const METHOD_LABEL = { boil:'煮沸', whirl:'回旋', dryhop:'干投', first:'头道麦汁' };
+
+/* ---- 酒花逐行反馈：时间口径 / IBU 贡献 / 贡献占比条 ---- */
+function renderHopRows(r){
+  const trs = $$('#tblHop tbody tr[data-i]');
+  if (!trs.length) return;
+  const max = Math.max(r.ibuMax || 0, .01);
+  const boil = num(S.batch.boil);
+  trs.forEach(tr => {
+    const i = +tr.dataset.i;
+    const h = S.hops[i];
+    if (!h) return;
+    const hintEl = $('[data-hint]', tr);
+    if (hintEl){
+      hintEl.textContent = hopTimeHint(h);
+      const over = h.method !== 'dryhop' && num(h.time) > boil;
+      hintEl.classList.toggle('cell-hint--warn', over);
+      hintEl.title = over
+        ? `停留 ${fmt(num(h.time),0)} min 超过煮沸总时长 ${boil} min；苦度按 ${boil} min 封顶计算，多出的时间不会再加苦`
+        : '';
+    }
+    const x = (r.hopBreak || []).find(b => b.idx === i);
+    const ib = x ? x.ib : 0;
+    const bEl = $('[data-ibu]', tr);
+    if (bEl){
+      const has = ib > .05;
+      bEl.textContent = has ? fmt(ib,0) : '—';
+      bEl.style.color = has ? '' : 'var(--text-3)';
+    }
+    const barEl = $('[data-ibubar]', tr);
+    if (barEl){
+      barEl.style.width = (ib > .05 ? Math.max(3, Math.min(100, ib/max*100)).toFixed(1) : 0) + '%';
+      barEl.style.background = METHOD_COLOR[h.method] || '#B06C31';
+    }
+  });
+}
+
+/* ---- 苦度构成堆叠条 ---- */
+const IBU_PALETTE = ['#B06C31','#6E9D6A','#8B79B0','#5A8FB0','#C0563F','#9AA24E','#B07C9E','#7E8C99'];
+function hopSegLabel(x){
+  if (x.method === 'dryhop') return `${x.n || '酒花'} · 干投 d${fmt(x.time,0)}`;
+  if (x.method === 'whirl')  return `${x.n || '酒花'} · 回旋`;
+  return `${x.n || '酒花'} · 停留 ${fmt(x.time,0)} min`;
+}
+function renderIbuMix(r){
+  const bar = $('#ibuMix'), lg = $('#ibuLegend'), wrap = $('#ibuMixWrap');
+  if (!bar || !lg || !wrap) return;
+  const items = (r.hopBreak || []).filter(x => x.ib > .05).sort((a,b) => b.ib - a.ib);
+  if (!items.length){
+    wrap.style.display = 'none'; bar.innerHTML = ''; lg.innerHTML = '';
+    return;
+  }
+  wrap.style.display = '';
+  const total = items.reduce((a,x) => a + x.ib, 0);
+  const TOP = 4;
+  const head = items.slice(0, TOP), rest = items.slice(TOP);
+  const segs = head.map((x,i) => ({ label:hopSegLabel(x), ib:x.ib, color:IBU_PALETTE[i % IBU_PALETTE.length] }));
+  if (rest.length){
+    segs.push({
+      label: rest.length === 1 ? hopSegLabel(rest[0]) : `其他 ${rest.length} 项`,
+      ib: rest.reduce((a,x) => a + x.ib, 0),
+      color: IBU_PALETTE[head.length % IBU_PALETTE.length]
+    });
+  }
+  bar.innerHTML = segs.map(s =>
+    `<i style="width:${(s.ib/Math.max(total,.01)*100).toFixed(1)}%;background:${s.color}" title="${escapeHtml(s.label)} · ${fmt(s.ib,1)} IBU"></i>`).join('');
+  lg.innerHTML = segs.map(s =>
+    `<span><i style="background:${s.color}"></i>${escapeHtml(s.label)} <b>${fmt(s.ib,0)} IBU</b></span>`).join('') +
+    `<span class="ibu-mix-total">合计 <b>${fmt(total,0)} IBU</b></span>`;
+}
+
+/* ---- 一键校准：苦度 / 投料量 ---- */
+function calHop(){
+  const st = styleById(S.styleId);
+  const r = compute(S);
+  const target = (st.ibu[0] + st.ibu[1]) / 2;
+  const adj = S.hops.map((h,i) => {
+    const x = (r.hopBreak || []).find(b => b.idx === i);
+    return { h, ib: x ? x.ib : 0 };
+  }).filter(x => x.ib > .05);
+  if (!adj.length){
+    toast('当前没有能贡献苦度的酒花（干投不计 IBU）。请先添加一次煮沸或回旋酒花。');
+    return;
+  }
+  const loose = adj.reduce((a,x) => a + x.ib, 0);
+  const fixed = r.ibu - loose;
+  if (target <= fixed + .05){
+    toast(`非苦花部分的固定苦度已有 <b>${fmt(fixed,0)} IBU</b>，无法靠缩减苦花降到 ${fmt(target,0)} IBU。建议降低 α-酸或改用低苦度酒花。`);
+    return;
+  }
+  const k = clamp((target - fixed) / loose, .08, 12);
+  adj.forEach(x => { x.h.qty = Math.max(1, Math.round(num(x.h.qty) * k)); });
+  renderHops(); refresh();
+  const nr = compute(S);
+  toast(`苦度已校准至 <b>${fmt(nr.ibu,0)} IBU</b>（苦花用量 ×${k.toFixed(2)}）<br>${escapeHtml(st.cn)} 目标 ${st.ibu[0]}–${st.ibu[1]} IBU，校准基准取区间中点 ${fmt(target,0)} IBU`);
+}
+function calGrist(){
+  const st = styleById(S.styleId);
+  const r = compute(S);
+  const ogMid = (st.og[0] + st.og[1]) / 2;
+  const ptsTarget = (ogMid - 1) * 1000;
+  if (!(r.ogPts > 0)){ toast('请先添加麦芽或糖类，再校准投料量。'); return; }
+  const k = clamp(ptsTarget / r.ogPts, .15, 8);
+  const scale = (arr, step) => arr.forEach(x => {
+    x.qty = Math.max(step, Math.round(num(x.qty) * k / step) * step);
+  });
+  scale(S.malts, .05); scale(S.sugars, .01);
+  renderMalts(); renderSugars(); refresh();
+  const nr = compute(S);
+  toast(`投料量按目标 OG 缩放 ×${k.toFixed(2)}，现为 <b>OG ${nr.OG.toFixed(3)}</b><br>${escapeHtml(st.cn)} 目标 ${st.og[0].toFixed(3)}–${st.og[1].toFixed(3)}，校准基准取区间中点 ${ogMid.toFixed(3)}`);
+}
+
+function renderYeastSelect(){
+  $('#selYeast').innerHTML = optGroupHtml(YEASTS, S.yeastId, y=>`（发酵度 ${y.att[0]}–${y.att[1]}%）`);
+  const y = S.yeastRef;
+  if (y){
+    $('#yeastNote').textContent = `${y.b} · ${y.sp} · ${y.form}发酵 · 絮凝 ${y.floc} · 推荐 ${y.rate}`;
+    $('#yeastBadge').textContent = y.o === 'CN' ? '国产菌株' : '进口菌株';
+    $('#yeastBadge').className = 'badge ' + (y.o === 'CN' ? 'badge--cn' : 'badge--mute');
+  }
+}
+
+/* ---- 指标面板 ---- */
+function metricCard(cfg){
+  const { label, value, unit, sub, state, lo, hi, v, scale, targetTxt } = cfg;
+  const pct = x => clamp((x - scale[0]) / (scale[1] - scale[0]), 0, 1) * 100;
+  const zl = pct(lo), zw = Math.max(pct(hi) - zl, 0.8), ml = pct(v);
+  const stTxt = state === 'ok' ? '达标' : (v < lo ? `低于目标` : `高于目标`);
+  return `
+  <div class="metric" data-mk="${cfg.key}" data-st="${state}">
+    <div class="metric__flag"></div>
+    <div class="metric__top"><span class="metric__k">${label}</span></div>
+    <div class="metric__v" data-val="${cfg.key}">${value}<span class="u">${unit}</span></div>
+    <div class="metric__sub">${sub}</div>
+    <div class="gauge">
+      <div class="gauge__track">
+        <div class="gauge__zone" style="left:${zl}%;width:${zw}%"></div>
+        <div class="gauge__mark" style="left:${ml}%"></div>
+      </div>
+      <div class="gauge__cap"><span>${targetTxt}</span><span>${stTxt}</span></div>
+    </div>
+  </div>`;
+}
+function renderMetrics(r){
+  const st = styleById(S.styleId);
+  const cells = [];
+
+  cells.push(metricCard({
+    key:'OG', label:'原麦汁浓度', value:r.OG.toFixed(3), unit:'SG',
+    sub:`${fmt(r.ogP,1)} °P · 提取物 ${fmt(r.totalExtractKg,2)} kg`,
+    lo:st.og[0], hi:st.og[1], v:r.OG, scale:[1.020,1.100],
+    targetTxt:`目标 ${st.og[0].toFixed(3)}–${st.og[1].toFixed(3)}`,
+    state: r.OG>=st.og[0]&&r.OG<=st.og[1] ? 'ok' : (rangeScore(r.OG, st.og)>=65?'warn':'bad')
+  }));
+  cells.push(metricCard({
+    key:'FG', label:'终点比重', value:r.FG.toFixed(3), unit:'SG',
+    sub:`${fmt(r.fgP,1)} °P · 残糖点数 ${fmt(r.fgPts,1)}`,
+    lo:st.fg[0], hi:st.fg[1], v:r.FG, scale:[1.000,1.035],
+    targetTxt:`目标 ${st.fg[0].toFixed(3)}–${st.fg[1].toFixed(3)}`,
+    state: r.FG>=st.fg[0]&&r.FG<=st.fg[1] ? 'ok' : (rangeScore(r.FG, st.fg)>=65?'warn':'bad')
+  }));
+  cells.push(metricCard({
+    key:'ABV', label:'酒精度', value:fmt(r.ABV,1), unit:'% ABV',
+    sub:`表观发酵度 ${fmt(r.ADFreal,1)}% · 真实 ${fmt(r.RDF,1)}%`,
+    lo:st.abv[0], hi:st.abv[1], v:r.ABV, scale:[0,12],
+    targetTxt:`目标 ${st.abv[0]}–${st.abv[1]}%`,
+    state: r.ABV>=st.abv[0]&&r.ABV<=st.abv[1] ? 'ok' : (rangeScore(r.ABV, st.abv)>=65?'warn':'bad')
+  }));
+  cells.push(metricCard({
+    key:'IBU', label:'苦度', value:fmt(r.ibu,0), unit:'IBU',
+    sub:`BU:GU ${fmt(r.bugu,2)} · 苦花 ${fmt(r.bitterG,0)} g`,
+    lo:st.ibu[0], hi:st.ibu[1], v:r.ibu, scale:[0,100],
+    targetTxt:`目标 ${st.ibu[0]}–${st.ibu[1]}`,
+    state: r.ibu>=st.ibu[0]&&r.ibu<=st.ibu[1] ? 'ok' : (rangeScore(r.ibu, st.ibu)>=65?'warn':'bad')
+  }));
+  const srmHi = st.srm[1]*1.97, srmLo = st.srm[0]*1.97;
+  cells.push(metricCard({
+    key:'SRM', label:'色度', value:fmt(r.EBC,0), unit:'EBC',
+    sub:`SRM ${fmt(r.SRM,1)} · ${srmName(r.SRM)}`,
+    lo:srmLo, hi:srmHi, v:r.EBC, scale:[0,80],
+    targetTxt:`目标 ${fmt(srmLo,0)}–${fmt(srmHi,0)} EBC`,
+    state: r.SRM>=st.srm[0]&&r.SRM<=st.srm[1] ? 'ok' : (rangeScore(r.SRM, st.srm)>=65?'warn':'bad')
+  }));
+  cells.push(metricCard({
+    key:'ATT', label:'表观发酵度', value:fmt(r.ADFreal,1), unit:'%',
+    sub:`按菌株设定 ${fmt(num(S.atten),0)}% 推算`,
+    lo:0, hi:100, v:r.ADFreal, scale:[40,100],
+    targetTxt:`菌株 ${S.yeastRef?S.yeastRef.att[0]+'–'+S.yeastRef.att[1]:'—'}%`,
+    state:'ok'
+  }));
+
+  /* BU:GU 平衡卡（通栏） */
+  const bugu = r.bugu;
+  let bal, balSt;
+  if (bugu < 0.4)       { bal = '麦芽主导 · 苦度很低'; balSt = 'ok'; }
+  else if (bugu < 0.55) { bal = '偏麦芽 · 平衡偏甜';   balSt = 'ok'; }
+  else if (bugu < 0.75) { bal = '均衡';               balSt = 'ok'; }
+  else if (bugu < 1.0)  { bal = '偏酒花';             balSt = 'ok'; }
+  else if (bugu < 1.4)  { bal = '酒花主导';           balSt = 'warn'; }
+  else                  { bal = '极高度酒花化';       balSt = 'warn'; }
+  cells.push(`
+  <div class="metric metric--wide" data-st="${balSt}" style="padding:10px 12px">
+    <div class="metric__flag"></div>
+    <div class="metric__top">
+      <span class="metric__k">苦度平衡比 BU:GU</span>
+      <span class="badge ${balSt==='ok'?'badge--ok':'badge--warn'}">${bal}</span>
+    </div>
+    <div class="metric__v" data-val="BUGU" style="font-size:20px">${fmt(bugu,2)}<span class="u">IBU / 比重点数</span></div>
+    <div class="gauge">
+      <div class="gauge__track">
+        <div class="gauge__zone" style="left:20%;width:60%"></div>
+        <div class="gauge__mark" style="left:${clamp(bugu/1.8,0,1)*100}%"></div>
+      </div>
+      <div class="gauge__scale"><span>0 纯麦芽</span><span>0.36</span><span>1.08</span><span>1.8+ 强烈</span></div>
+    </div>
+  </div>`);
+
+  $('#metricGrid').innerHTML = cells.join('');
+
+  /* 成品酒色 */
+  const chip = $('#colorChip');
+  chip.style.background = `linear-gradient(160deg, ${r.colorHex}, ${r.colorHex})`;
+  $('#colorLbl').textContent = `${fmt(r.EBC,0)} EBC · SRM ${fmt(r.SRM,1)}`;
+  $('#colorLbl').style.color = hexLum(r.colorHex) > 0.6 ? '#2A2119' : '#FFF7E8';
+  $('#colorLbl').style.textShadow = hexLum(r.colorHex) > 0.6 ? 'none' : '0 1px 4px rgba(0,0,0,.55)';
+  $('#colorName').textContent = srmName(r.SRM);
+  $('#colorBar').innerHTML = SRM_TABLE.filter((_,i)=>i%4===0).map(([s,h])=>`<i style="background:${h}"></i>`).join('');
+
+  /* 数字跳动 */
+  $$('#metricGrid .metric__v').forEach(el => {
+    const k = el.dataset.val; if (!k) return;
+    const prev = metricPrev[k];
+    const cur = el.textContent;
+    if (prev !== undefined && prev !== cur){ el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
+    metricPrev[k] = cur;
+  });
+}
+const metricPrev = {};
+
+/* ---- 风格匹配 ---- */
+function renderMatch(m){
+  const R = 42, C = 2*Math.PI*R;
+  const arc = $('#matchArc');
+  const col = m.score >= 85 ? '#3C8A58' : m.score >= 65 ? '#C07E1A' : '#BF4436';
+  arc.setAttribute('stroke', col);
+  arc.setAttribute('stroke-dasharray', `${(m.score/100*C).toFixed(1)} ${C.toFixed(1)}`);
+  $('#matchScore').textContent = m.score;
+  $('#matchScore').style.color = col;
+  const badge = $('#matchBadge');
+  badge.textContent = m.score >= 90 ? '高度契合' : m.score >= 75 ? '基本吻合' : m.score >= 55 ? '需要调整' : '偏离明显';
+  badge.className = 'badge ' + (m.score >= 75 ? 'badge--ok' : m.score >= 55 ? 'badge--warn' : 'badge--bad');
+
+  $('#matchList').innerHTML = m.items.map(it => {
+    const cls = it.state === 'ok' ? 'badge--ok' : it.state === 'warn' ? 'badge--warn' : 'badge--bad';
+    const del = it.state === 'ok' ? '区间内'
+      : (it.v < it.rng[0] ? `低 ${fmt(Math.abs(it.delta), it.k==='SRM'?1:1)}` : `高 ${fmt(Math.abs(it.delta), it.k==='SRM'?1:1)}`);
+    return `<div style="display:flex;align-items:center;gap:7px;font-size:11.5px">
+      <span style="flex:1;color:var(--text-2)">${it.label}</span>
+      <b style="font-weight:700">${it.txt}${it.unit}</b>
+      <span class="badge ${cls}" style="min-width:52px;justify-content:center">${del}</span>
+    </div>`;
+  }).join('');
+}
+
+/* ---- 风味雷达 ---- */
+function renderRadar(r){
+  const st = styleById(S.styleId);
+  const cx = 170, cy = 128, R = 86;
+  const axes = [['甜度','sw'],['苦度','bi'],['酒花香','ho'],['酯香','es'],['酒体','bo'],['焙烤','ro']];
+  const ang = i => (-90 + i*60) * Math.PI/180;
+  const pt = (i, val) => [cx + R*(val/10)*Math.cos(ang(i)), cy + R*(val/10)*Math.sin(ang(i))];
+  const poly = obj => axes.map(([,k],i) => pt(i, clamp(obj[k]||0,0,10)).map(v=>v.toFixed(1)).join(',')).join(' ');
+
+  let g = '';
+  /* 同心网格 */
+  [0.25,0.5,0.75,1].forEach(f => {
+    const p = axes.map((_,i) => [cx + R*f*Math.cos(ang(i)), cy + R*f*Math.sin(ang(i))].map(v=>v.toFixed(1)).join(',')).join(' ');
+    g += `<polygon points="${p}" fill="none" stroke="${f===1?'#DCD3C2':'#EDE7DB'}" stroke-width="1"/>`;
+  });
+  /* 轴线 + 标签 */
+  axes.forEach(([label],i) => {
+    const [x,y] = [cx + R*Math.cos(ang(i)), cy + R*Math.sin(ang(i))];
+    g += `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#E7E0D3" stroke-width="1"/>`;
+    const lx = cx + (R+22)*Math.cos(ang(i)), ly = cy + (R+22)*Math.sin(ang(i));
+    g += `<text x="${lx.toFixed(1)}" y="${(ly+4).toFixed(1)}" text-anchor="middle" font-size="11.5" font-weight="600" fill="#6C5F4E">${label}</text>`;
+    const vx = cx + (R+40)*Math.cos(ang(i)), vy = cy + (R+40)*Math.sin(ang(i));
+    g += `<text x="${vx.toFixed(1)}" y="${(vy+4).toFixed(1)}" text-anchor="middle" font-size="10" fill="#9C8E7B">${r.flavor[axes[i][1]].toFixed(1)}</text>`;
+  });
+  /* 风格典型 */
+  g += `<polygon points="${poly(st.fl)}" fill="rgba(159,184,162,.22)" stroke="#9FB8A2" stroke-width="1.6" stroke-dasharray="4 3"/>`;
+  /* 本配方 */
+  g += `<polygon points="${poly(r.flavor)}" fill="rgba(192,126,26,.24)" stroke="#C07E1A" stroke-width="2.2" stroke-linejoin="round"/>`;
+  axes.forEach(([,k],i) => {
+    const [x,y] = pt(i, clamp(r.flavor[k],0,10));
+    g += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.1" fill="#fff" stroke="#C07E1A" stroke-width="2"/>`;
+  });
+  /* 中心 */
+  g += `<circle cx="${cx}" cy="${cy}" r="2" fill="#C07E1A"/>`;
+  $('#svgRadar').innerHTML = g;
+}
+
+/* ---- 工艺时间轴 ---- */
+function renderTimeline(r){
+  const st = styleById(S.styleId);
+  const boil = num(S.batch.boil);
+  const W = 680, PAD = 8, H = 172;
+  const segs = [
+    { n:'糖化',      col:'#C79A2E', bg:'#FDF3DF', t:`${num(S.process.mashTime)} min @ ${num(S.process.mashTemp)}℃`, d:`52℃ 休止 → ${num(S.process.mashTemp)}℃ 糖化 → ${num(S.process.mashOut)}℃ 出醪` },
+    { n:'洗糟',      col:'#5F8B6B', bg:'#EDF5EE', t:`30 min`, d:`${fmt(Math.max(0,r.sparge),1)} L / 2 次` },
+    { n:'煮沸',      col:'#B06E28', bg:'#FBF0E2', t:`${boil} min`, d:`${fmt(r.preBoilV,1)} → ${fmt(r.postBoilV,1)} L（蒸发 ${fmt(r.evapTotal*100,0)}%）` },
+    { n:'回旋·冷却', col:'#54808F', bg:'#EBF3F7', t:`20 min @ 85℃`, d:`回旋 → 冷却接种` },
+    { n:'发酵·后熟', col:'#7867A0', bg:'#F1EEF7', t:`主发酵 ${num(S.temp)}℃`, d:`5–10 d → 后熟碳化` }
+  ];
+  const widths = [0.29, 0.12, 0.26, 0.13, 0.20];
+  let x = PAD;
+  const avail = W - PAD*2;
+  const positions = [];
+  segs.forEach((s,i) => { const w = avail*widths[i]; positions.push([x, w]); x += w; });
+
+  let g = '';
+  /* 阶段底条 */
+  segs.forEach((s,i) => {
+    const [x0,w] = positions[i];
+    g += `<rect x="${x0.toFixed(1)}" y="66" width="${(w-5).toFixed(1)}" height="26" rx="9" fill="${s.bg}" stroke="${s.col}" stroke-width="1.3"/>`;
+    g += `<text x="${(x0+w/2-3).toFixed(1)}" y="84" text-anchor="middle" font-size="12" font-weight="700" fill="${s.col}">${s.n}</text>`;
+    g += `<text x="${x0.toFixed(1)}" y="56" font-size="10.5" font-weight="600" fill="#6C5F4E">${s.t}</text>`;
+    g += `<text x="${x0.toFixed(1)}" y="112" font-size="10.5" fill="#9C8E7B">${s.d}</text>`;
+    if (i < segs.length-1){
+      const ax = (x0+w-3).toFixed(1);
+      g += `<path d="M${ax} 74 l7 5 -7 5z" fill="#C9BFA9"/>`;
+    }
+  });
+
+  /* 酒花添加点：定位到煮沸段（含头道麦汁） */
+  const [bx, bw] = positions[2];
+  const boilHops = S.hops.filter(h => (h.method==='boil' || h.method==='first') && num(h.qty) > 0);
+  boilHops.forEach(h => {
+    const frac = h.method === 'first' ? 0 : clamp(1 - num(h.time)/Math.max(boil,1), 0, 1);
+    const px = bx + frac*(bw-6);
+    const py = 44;
+    g += `<circle cx="${px.toFixed(1)}" cy="${py}" r="4.5" fill="#47734A" stroke="#fff" stroke-width="1.6"/>`;
+    g += `<text x="${px.toFixed(1)}" y="33" text-anchor="middle" font-size="9.5" font-weight="700" fill="#47734A">${fmt(h.qty,0)}g</text>`;
+  });
+  /* 回旋与干投 */
+  const [wx] = positions[3];
+  S.hops.filter(h => h.method==='whirl' && num(h.qty)>0).forEach(h => {
+    const px = wx + 16;
+    g += `<circle cx="${px.toFixed(1)}" cy="44" r="4.5" fill="#47734A" stroke="#fff" stroke-width="1.6"/>`;
+    g += `<text x="${px.toFixed(1)}" y="33" text-anchor="middle" font-size="9.5" font-weight="700" fill="#47734A">${fmt(h.qty,0)}g</text>`;
+  });
+  const [fx, fw] = positions[4];
+  S.hops.filter(h => h.method==='dryhop' && num(h.qty)>0).forEach((h,i) => {
+    const px = fx + 30 + i*46;
+    if (px > fx + fw - 18) return;
+    g += `<circle cx="${px.toFixed(1)}" cy="44" r="4.5" fill="#7867A0" stroke="#fff" stroke-width="1.6"/>`;
+    g += `<text x="${px.toFixed(1)}" y="33" text-anchor="middle" font-size="9.5" font-weight="700" fill="#6E5C93">${fmt(h.qty,0)}g</text>`;
+  });
+  /* 底注 */
+  g += `<text x="${PAD}" y="140" font-size="10.5" fill="#9C8E7B">● 绿点为煮沸 / 回旋期酒花添加（横向位置按剩余时间排布）；紫点为干投</text>`;
+  g += `<text x="${PAD}" y="157" font-size="10.5" fill="#9C8E7B">总投料 ${fmt(r.gristKg+r.adjunctKg,2)} kg · 总用水 ${fmt(r.totalWater,1)} L · 湿麦糟 ${fmt(r.wetBsg,1)} kg · 目标「${st.cn}」OG ${st.og[0].toFixed(3)}–${st.og[1].toFixed(3)}</text>`;
+
+  $('#svgTimeline').innerHTML = g;
+  const totalH = num(S.process.mashTime) + 30 + boil + 20 + 168;
+  $('#schedBadge').textContent = `${(totalH/24).toFixed(1)} 天（含主发酵与后熟）`;
+  $('#mashNote').innerHTML = `糖化休止 <b>${num(S.process.mashTemp)}℃</b>：` +
+    (num(S.process.mashTemp) < 64 ? '偏 β-淀粉酶，产物以麦芽糖为主 → 酒体更干、发酵度更高，适合皮尔森、赛松。'
+     : num(S.process.mashTemp) > 68 ? '偏 α-淀粉酶，糊精比例上升 → 酒体更饱满、发酵度更低，适合英式艾尔、世涛。'
+     : 'α 与 β-淀粉酶兼顾，糖谱均衡，适合大多数风格。') +
+    ` 出醪 ${num(S.process.mashOut)}℃ 可降低醪液黏度、改善洗糟效率。`;
+}
+
+/* ---- 国产化 ---- */
+function renderLocal(r){
+  const maltKg = S.malts.reduce((a,m)=>a+Math.max(0,num(m.qty)),0);
+  const maltCn = S.malts.reduce((a,m)=>a+(m.o==='CN'?Math.max(0,num(m.qty)):0),0);
+  const sugKg  = S.sugars.reduce((a,s)=>a+Math.max(0,num(s.qty)),0);
+  const sugCn  = S.sugars.reduce((a,s)=>a+(s.o==='CN'?Math.max(0,num(s.qty)):0),0);
+  const hopG   = S.hops.reduce((a,h)=>a+Math.max(0,num(h.qty)),0);
+  const hopCn  = S.hops.reduce((a,h)=>a+(h.o==='CN'?Math.max(0,num(h.qty)):0),0);
+  const y = S.yeastRef;
+  const yeastG = r.pitchG, yeastCn = y && y.o==='CN' ? yeastG : 0;
+
+  const total = maltKg + sugKg + hopG/1000 + yeastG/1000;
+  const cnTot = maltCn + sugCn + hopCn/1000 + yeastCn/1000;
+  const pct = total > 0 ? cnTot/total*100 : 0;
+
+  const R = 42, C = 2*Math.PI*R;
+  $('#localArc').setAttribute('stroke-dasharray', `${(pct/100*C).toFixed(1)} ${C.toFixed(1)}`);
+  $('#localArc').setAttribute('stroke', pct >= 80 ? '#3C8A58' : pct >= 50 ? '#C07E1A' : '#BF4436');
+  $('#localPct').textContent = total > 0 ? pct.toFixed(0)+'%' : '—';
+  $('#localPct').style.color = pct >= 80 ? '#3C8A58' : pct >= 50 ? '#C07E1A' : '#BF4436';
+  const lb = $('#localBadge');
+  lb.textContent = total === 0 ? '暂无原料' : pct >= 95 ? '全国产' : pct >= 70 ? '国产为主' : pct >= 40 ? '进口为主' : '重度依赖进口';
+  lb.className = 'badge ' + (pct >= 70 ? 'badge--cn' : 'badge--mute');
+
+  const line = (label, cn, tot, unit) => {
+    const p = tot > 0 ? Math.round(cn/tot*100) : 0;
+    return `<div style="display:flex;align-items:center;gap:7px;font-size:11.5px">
+      <span style="flex:0 0 46px;color:var(--text-2)">${label}</span>
+      <span style="flex:1;height:6px;border-radius:6px;background:var(--surface-3);overflow:hidden">
+        <i style="display:block;height:100%;width:${p}%;background:${p>=70?'#47734A':p>=40?'#C07E1A':'#BF4436'};border-radius:6px;transition:width .35s"></i></span>
+      <b style="flex:0 0 62px;text-align:right;font-weight:700;font-size:11px">${fmt(cn, unit==='kg'?2:0)}/${fmt(tot, unit==='kg'?2:0)}${unit}</b>
+    </div>`;
+  };
+  $('#localBreak').innerHTML =
+    line('麦芽', maltCn, maltKg, 'kg') + line('糖·辅料', sugCn, sugKg, 'kg') +
+    line('酒花', hopCn, hopG, 'g') + line('酵母', yeastCn, yeastG, 'g');
+
+  /* 替代建议 */
+  const swaps = analyzeSwaps(r, S);
+  const box = $('#swapBox');
+  if (!swaps.length){
+    box.innerHTML = `<div class="field__note">当前配方未找到高置信度的同类型替代方案（或原料已全部同向）。调整原料后会实时给出建议。</div>`;
+    return;
+  }
+  box.innerHTML = `<div class="sec-hd" style="margin-top:2px">替代方案</div>` + swaps.map(s => `
+    <div class="swap">
+      <span class="badge badge--mute">${s.kind}</span>
+      <span>${escapeHtml(s.from)}</span>
+      <span class="swap__arrow">→</span>
+      <span class="swap__to">${escapeHtml(s.to)}</span>
+      <button class="btn btn--sm" data-swap="${s.kind}" data-to="${s.toId}">替换</button>
+      <span class="swap__why">${escapeHtml(s.why)}</span>
+    </div>`).join('');
+}
+
+/* ---- 体检 ---- */
+function renderAlerts(r, alerts){
+  const box = $('#alertList');
+  $('#alertCount').textContent = alerts.length ? `${alerts.length} 条` : '全部正常';
+  if (!alerts.length){
+    box.innerHTML = `<div class="alert alert--ok">
+      <svg class="alert__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9 17l10.5-10.5"/></svg>
+      <div>配方各项指标落在目标区间内，未发现参数冲突。</div></div>`;
+    return;
+  }
+  const ico = {
+    bad:'<path d="M12 4.2 21 19.5H3z"/><path d="M12 10v4M12 17h.01"/>',
+    warn:'<path d="M12 4.2 21 19.5H3z"/><path d="M12 10v4M12 17h.01"/>',
+    info:'<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8h.01"/>',
+    cn:'<path d="M12 3.5 4.5 7v5.5c0 4.4 3 7.6 7.5 8.5 4.5-.9 7.5-4.1 7.5-8.5V7z"/>',
+    ok:'<path d="M4.5 12.5 9 17l10.5-10.5"/>'
+  };
+  box.innerHTML = alerts.map(a => `
+    <div class="alert alert--${a.level}">
+      <svg class="alert__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ico[a.level]||ico.info}</svg>
+      <div><b>${escapeHtml(a.t)}</b><br>${a.b}</div>
+    </div>`).join('');
+}
+
+/* ---- 原料库 ---- */
+let libFilter = { origin:'all', cat:'malt', q:'' };
+function renderLibrary(){
+  const { origin, cat, q } = libFilter;
+  const pool = cat === 'malt' ? MALTS : cat === 'sugar' ? SUGARS : cat === 'hop' ? HOPS : YEASTS;
+  const kw = q.trim().toLowerCase();
+  const list = pool.filter(x => {
+    if (origin !== 'all' && x.o !== origin) return false;
+    if (!kw) return true;
+    const hay = [x.n, x.b||'', ALIAS[x.id]||'', x.note||''].join(' ').toLowerCase();
+    return kw.split(/\s+/).every(k => hay.includes(k));
+  });
+  $('#libCount').textContent = `${list.length} / ${pool.length} 项`;
+  const box = $('#libList');
+  if (!list.length){ box.innerHTML = `<div class="empty">没有匹配的原料，换个关键词试试（支持拼音化别名，如「卡斯卡特」）。</div>`; return; }
+
+  box.innerHTML = list.map(x => {
+    let meta = '';
+    if (cat === 'malt')   meta = `<span>色度 <em>${x.c} EBC</em></span><span>提取率 <em>${x.e}%</em></span><span>${x.t==='base'?'基础麦芽':x.t==='special'?'特种麦芽':'焙烤类'}</span>`;
+    if (cat === 'sugar')  meta = `<span>提取率 <em>${x.e}%</em></span><span>可发酵 <em>${x.fer}%</em></span>`;
+    if (cat === 'hop')    meta = `<span>α-酸 <em>${x.aa}%</em></span>${x.be?`<span>β-酸 <em>${x.be}%</em></span>`:''}${x.ch?`<span>合葎草酮 <em>${x.ch}%</em></span>`:''}<span>${x.use==='bitter'?'苦花':x.use==='aroma'?'香花':'苦香兼用'}</span>`;
+    if (cat === 'yeast')  meta = `<span>发酵度 <em>${x.att[0]}–${x.att[1]}%</em></span><span>温度 <em>${x.tmp[0]}–${x.tmp[1]}℃</em></span><span>${x.form}发酵</span><span>耐受 <em>${x.tol||'—'}%</em></span>`;
+    return `<div class="libitem" data-add-lib="${cat}" data-id="${x.id}" title="点击添加到配方">
+      <div class="libitem__n">${escapeHtml(x.n)}
+        ${x.o==='CN'?'<span class="badge badge--cn">国产</span>':'<span class="badge badge--mute">进口</span>'}
+        <span class="badge badge--mute">${SRC_LABEL[x.s]||''}</span>
+      </div>
+      <span class="libitem__add">＋</span>
+      <div class="libitem__meta"><span>${escapeHtml(x.b||'')}</span>${meta}</div>
+    </div>`;
+  }).join('');
+}
+
+/* =========================================================================
+   6 · 主刷新
+   ========================================================================= */
+function refresh(){
+  const r = compute(S);
+  r.gristTot = r.gristKg + r.adjunctKg;
+  window.__r = r;
+  renderStyleTargets(r);
+  renderMetrics(r);
+  renderMatch(analyzeMatch(r, styleById(S.styleId)));
+  renderRadar(r);
+  renderTimeline(r);
+  renderLocal(r);
+  renderAlerts(r, analyzeAlerts(r, S, styleById(S.styleId)));
+
+  /* 表格内的占比与汇总（不重建 DOM，保持输入焦点） */
+  const gristAll = S.malts.reduce((a,m)=>a+Math.max(0,num(m.qty)),0) + S.sugars.reduce((a,s)=>a+Math.max(0,num(s.qty)),0);
+  $$('#tblMalt tbody tr').forEach((tr,i) => {
+    const el = $('[data-pct]', tr);
+    if (el) el.textContent = gristAll>0 ? (Math.max(0,num(S.malts[i].qty))/gristAll*100).toFixed(0)+'%' : '—';
+  });
+  $$('#tblSugar tbody tr').forEach((tr,i) => {
+    const el = $('[data-pct]', tr);
+    if (el) el.textContent = gristAll>0 ? (Math.max(0,num(S.sugars[i].qty))/gristAll*100).toFixed(0)+'%' : '—';
+  });
+
+  /* 汇总行 */
+  $('#gristTotal').textContent = fmt(r.grainKg,2)+' kg';
+  $('#gristBase').textContent = ((r.gristKg>0?r.baseShare*100:0)).toFixed(0)+'%';
+  $('#gristColor').textContent = fmt(r.EBC,0)+' EBC';
+  $('#gristKg').textContent = fmt(r.totalExtractKg,2)+' kg';
+  $('#gristExtract').textContent = `OG ${r.OG.toFixed(3)}`;
+  $('#sugarTotal').textContent = fmt(r.adjunctKg,2)+' kg';
+  $('#sugarShare').textContent = ((r.sugarShare||0)*100).toFixed(0)+'%';
+  const maltPtsOnly = S.malts.reduce((a,m)=>a+Math.max(0,num(m.qty))*num(m.e)*KEX*r.eff/r.V, 0);
+  $('#adjExtract').textContent = r.adjunctKg>0 ? `+${fmt(r.totalPts-maltPtsOnly,1)} 点` : '未使用';
+  $('#hopTotal').textContent = fmt(r.ibu,0)+' IBU';
+  $('#hopBitter').textContent = fmt(r.bitterG,0)+' g';
+  $('#hopAroma').textContent = fmt(r.aromaG,0)+' g';
+  $('#hopG').textContent = fmt(r.hopG,0)+' g';
+  renderHopRows(r);
+  renderIbuMix(r);
+
+  /* 批次面板 */
+  $('#kGrain').textContent = fmt(r.gristKg+r.adjunctKg,2)+' kg';
+  $('#kMashWater').textContent = fmt(r.mashWater,1)+' L';
+  $('#kSparge').textContent = (r.sparge<0?'—':fmt(r.sparge,1))+' L';
+  $('#kPreboil').textContent = fmt(r.preBoilV,1)+' L';
+  $('#kTotalWater').textContent = fmt(r.totalWater,1)+' L';
+  $('#kBsg').textContent = fmt(r.wetBsg,1)+' kg';
+  $('#batchScale').textContent = num(S.batch.volume)+' L';
+  $('#kRatio').textContent = r.clso>0 ? r.clso.toFixed(2)+' : 1' : '—';
+  const phEl = $('#kPh');
+  phEl.textContent = r.pHest.toFixed(2) + (r.pHest>5.6 ? ' 偏高' : r.pHest<5.15 ? ' 偏低' : r.pHest<=5.45 ? ' 理想' : ' 可接受');
+  phEl.style.color = (r.pHest>5.6 || r.pHest<5.15) ? 'var(--warn)' : (r.pHest<=5.45 ? 'var(--ok)' : 'var(--text)');
+  $('#waterBadge').textContent = r.clso>1.5 ? '偏酒花向' : r.clso<0.7 ? '偏麦芽向' : '均衡';
+  const clsoTxt = r.clso>1.5
+    ? '硫酸根偏高，强化苦味干爽感与收口，适合 IPA、皮尔森、赛松。'
+    : r.clso<0.7 ? '氯离子偏高，突出麦芽甜感与圆润酒体，适合世涛、波特、英式艾尔。'
+    : '氯硫比接近 1:1，风味表现均衡，通用性最好。';
+  const phTxt = r.pHest > 5.6
+    ? ' 糖化 pH 偏高：淀粉酶活性受抑、易萃出谷物涩味，建议加磷酸或乳酸调酸、或掺入低碱度水稀释。'
+    : r.pHest < 5.15
+    ? ' 糖化 pH 偏低：发酵会过于彻底、酒体偏薄，可减少调酸量或略提剩余碱度。'
+    : r.pHest <= 5.45 ? ' 糖化 pH 处于理想区间（室温测定口径 5.2–5.4），酶活与风味萃取最平衡。'
+    : ' 糖化 pH 略高于理想值，可接受；追求更干爽麦芽表达时可轻微调酸。';
+  $('#waterNote').textContent = clsoTxt + phTxt;
+
+  /* 酵母面板 */
+  const y = S.yeastRef;
+  if (y){
+    $('#yeastG').textContent = r.pitchG.toFixed(0)+' g';
+    $('#yeastRdf').textContent = fmt(r.RDF,1)+'%';
+    $('#yeastTol').textContent = y.tol ? y.tol+'% ABV' : '—';
+    $('#tempNote').textContent = `${y.tmp[0]}–${y.tmp[1]}℃（建议 ${y.opt?y.opt[0]+'–'+y.opt[1]:'—'}℃）`;
+    $('#tempMid').textContent = `${num(S.temp)}℃`;
+    const warn = num(S.temp) < y.tmp[0] || num(S.temp) > y.tmp[1];
+    $('#tempNote').style.color = warn ? 'var(--bad)' : 'var(--text-3)';
+  }
+
+  /* 顶栏 */
+  const rows = S.malts.length + S.sugars.length + S.hops.length + 1;
+  $('#statRows').textContent = rows;
+  const lc = $('#localPct').textContent;
+  $('#statLocal').textContent = lc;
+  $('#statLocal').style.color = $('#localPct').style.color;
+  $('#statMatch').textContent = $('#matchScore').textContent + ' 分';
+  $('#statMatch').style.color = $('#matchScore').style.color;
+  $('#metricHint').textContent = styleById(S.styleId).cn + ' 目标区间';
+
+  syncTblHints();
+}
+
+/* 表格横向溢出提示：真的溢出才出现，与断点无关 */
+function syncTblHints(){
+  $$('.tbl-scroll').forEach(el => {
+    const hint = el.previousElementSibling;
+    if (hint && hint.classList && hint.classList.contains('tbl-hint'))
+      hint.classList.toggle('is-on', el.scrollWidth > el.clientWidth + 2);
+  });
+}
+
+function renderAll(){
+  renderStyleSelect();
+  renderMalts(); renderSugars(); renderHops(); renderYeastSelect();
+  syncInputs();
+  refresh();
+}
+
+/* ---- 输入框同步 ---- */
+function syncInputs(){
+  const set = (id, v) => { const el = $('#'+id); if (el && document.activeElement !== el) el.value = v; };
+  set('inVolume', S.batch.volume); set('inEfficiency', S.batch.efficiency);
+  set('rgEfficiency', S.batch.efficiency); set('inBoil', S.batch.boil);
+  set('inEvap', S.batch.evap); set('inRatio', S.batch.ratio); set('inAbsorb', S.batch.absorb);
+  set('inSO4', S.water.so4); set('inCl', S.water.cl); set('inAlk', S.water.alk); set('inCa', S.water.ca);
+  set('inMashTemp', S.process.mashTemp); set('inMashTime', S.process.mashTime); set('inMashOut', S.process.mashOut);
+  set('inPitch', S.pitch); set('inAtten', S.atten); set('rgTemp', S.temp);
+  const eff = num(S.batch.efficiency);
+  $('#effNote').textContent = eff >= 85 ? '高效设备' : eff >= 75 ? '优化良好的设备' : eff >= 65 ? '家酿设备常规' : '偏低，检查碾磨与洗糟';
+}
+
+/* =========================================================================
+   7 · 交互
+   ========================================================================= */
+function toast(msg){
+  const box = $('#toast');
+  const el = document.createElement('div');
+  el.className = 'toast'; el.innerHTML = msg;
+  box.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('on'));
+  setTimeout(() => { el.classList.remove('on'); setTimeout(() => el.remove(), 400); }, 2600);
+}
+
+/* 新增 / 删除行 */
+function addRow(kind){
+  if (kind === 'malt')  { S.malts.push(rowFromMalt('cn-pils', 1)); renderMalts(); }
+  if (kind === 'sugar') { S.sugars.push(rowFromSugar('cn-sucrose', 0.3)); renderSugars(); }
+  if (kind === 'hop')   { S.hops.push(rowFromHop('cn-qdh', 20, 'boil', 60)); renderHops(); }
+  refresh();
+}
+function delRow(kind, i){
+  if (kind === 'malt')  S.malts.splice(i,1), renderMalts();
+  if (kind === 'sugar') S.sugars.splice(i,1), renderSugars();
+  if (kind === 'hop')   S.hops.splice(i,1), renderHops();
+  refresh();
+}
+function dupRow(kind, i){
+  const src = kind === 'malt' ? S.malts[i] : kind === 'sugar' ? S.sugars[i] : S.hops[i];
+  if (!src) return;
+  const copy = JSON.parse(JSON.stringify(src));
+  if (kind === 'malt')  { S.malts.splice(i+1, 0, copy);  renderMalts(); }
+  if (kind === 'sugar') { S.sugars.splice(i+1, 0, copy); renderSugars(); }
+  if (kind === 'hop')   { S.hops.splice(i+1, 0, copy);   renderHops(); }
+  refresh();
+  toast(`已复制 <b>${escapeHtml(src.n || '该行')}</b> 到下一行`);
+}
+
+/* 表格事件（事件委托） */
+function bindTable(tbodySel, kind, handler){
+  const tb = $(tbodySel);
+  const ev = e => {
+    const tr = e.target.closest('tr[data-i]');
+    if (!tr) return;
+    const i = +tr.dataset.i;
+    const role = e.target.dataset.role;
+    const isSelect = e.target.tagName === 'SELECT';
+    if (isSelect && e.type !== 'change') return;
+    if (!isSelect && e.type === 'change') return;
+    if (role) handler(kind, i, role, e.target.value, tr);
+  };
+  tb.addEventListener('input', ev);
+  tb.addEventListener('change', ev);
+  tb.addEventListener('click', e => {
+    const dup = e.target.closest('[data-dup]');
+    if (dup){ dupRow(dup.dataset.dup, +dup.dataset.i); return; }
+    const btn = e.target.closest('[data-del]');
+    if (btn) delRow(btn.dataset.del, +btn.dataset.i);
+  });
+}
+
+function onCell(kind, i, role, val, tr){
+  const row = kind === 'malt' ? S.malts[i] : kind === 'sugar' ? S.sugars[i] : S.hops[i];
+  if (!row) return;
+  if (role === 'lib'){
+    if (kind === 'malt'){
+      const m = maltById(val); if (!m) return;
+      Object.assign(row, { lib:m.id, n:m.n, b:m.b, o:m.o, c:m.c, e:m.e, t:m.t });
+      $$('input', tr).forEach(inp => {
+        if (inp.dataset.role === 'c') inp.value = m.c;
+        if (inp.dataset.role === 'e') inp.value = m.e;
+      });
+      const badge = $('td.c .badge', tr);
+      if (badge){ badge.outerHTML = originBadge(m.o); }
+    }
+    if (kind === 'sugar'){
+      const s = sugarById(val); if (!s) return;
+      Object.assign(row, { lib:s.id, n:s.n, o:s.o, e:s.e, fer:s.fer, mash:s.mash!==false });
+      const fi = $('input[data-role=fer]', tr); if (fi) fi.value = s.fer;
+      const badge = $('td.c .badge', tr);
+      if (badge){ badge.outerHTML = originBadge(s.o); }
+    }
+    if (kind === 'hop'){
+      const h = hopById(val); if (!h) return;
+      Object.assign(row, { lib:h.id, n:h.n, o:h.o, aa:h.aa, ch:h.ch });
+      const ai = $('input[data-role=aa]', tr); if (ai) ai.value = h.aa;
+      const badge = $('td.c .badge', tr);
+      if (badge){ badge.outerHTML = originBadge(h.o); }
+    }
+  }
+  else if (role === 'qty')    row.qty = num(val);
+  else if (role === 'c')      row.c = num(val);
+  else if (role === 'e')      row.e = num(val);
+  else if (role === 'aa')     row.aa = num(val);
+  else if (role === 'fer')    row.fer = clamp(num(val), 0, 100);
+  else if (role === 'method'){
+    row.method = val;
+    if (val === 'dryhop' && num(row.time) > 10) row.time = 3;
+    if (val !== 'dryhop' && num(row.time) < 1) row.time = 60;
+    renderHops();
+  }
+  else if (role === 'time')   row.time = num(val);
+  refresh();
+}
+
+/* 顺序不能颠倒：先应用模板，再刷新 */
+function applyTemplate(t, silent){
+  S.batch.volume = t.batch.volume; S.batch.efficiency = t.batch.efficiency;
+  S.batch.boil = t.batch.boil; S.batch.evap = t.batch.evap; S.batch.ratio = t.batch.ratio;
+  S.styleId = t.style;
+  S.malts  = t.malts.map(([id,q]) => rowFromMalt(id,q)).filter(Boolean);
+  S.sugars = (t.sugars||[]).map(([id,q]) => rowFromSugar(id,q)).filter(Boolean);
+  S.hops   = t.hops.map(([id,q,m,ti]) => rowFromHop(id,q,m,ti)).filter(Boolean);
+  setYeast(t.yeast);
+  S.pitch = t.pitch; S.atten = t.atten; S.temp = t.temp;
+  renderAll();
+  if (!silent) toast(`已载入模板 <b>${escapeHtml(t.n)}</b>`);
+}
+function setYeast(id){
+  const y = yeastById(id) || YEASTS[0];
+  S.yeastId = y.id;
+  S.yeastRef = Object.assign({}, y, { ester: yeastEster(y) });
+  S.atten = Math.round((y.att[0]+y.att[1])/2);
+  S.temp = y.opt ? (y.opt[0]+y.opt[1])/2 : (y.tmp[0]+y.tmp[1])/2;
+}
+
+/* 替代替换 */
+function doSwap(kind, toId){
+  if (kind === '麦芽'){
+    const src = maltById(toId); let done = 0;
+    S.malts.forEach((m,i) => {
+      if (m.o === 'CN') return;
+      const cur = maltById(m.lib); if (!cur || cur.t !== src.t) return;
+      const nrow = rowFromMalt(toId, m.qty);
+      if (nrow){ S.malts[i] = nrow; done++; }
+    });
+    renderMalts();
+    toast(done ? `已将 <b>${done}</b> 项进口麦芽替换为国产料` : '没有可替换的同类进口麦芽');
+  } else if (kind === '酒花'){
+    const src = hopById(toId); let done = 0;
+    S.hops.forEach((h,i) => {
+      if (h.o === 'CN') return;
+      const cur = hopById(h.lib); if (!cur) return;
+      const same = (cur.use === 'bitter' && src.use !== 'aroma') || (cur.use === 'aroma' && src.use !== 'bitter') || cur.use === src.use;
+      if (!same) return;
+      const ratio = cur.aa / src.aa;                          /* 按 α-酸等量折算用量 */
+      const nrow = rowFromHop(toId, Math.round(num(h.qty)*ratio*10)/10, h.method, h.time);
+      if (nrow){ nrow.note = '按 α-酸等量折算'; S.hops[i] = nrow; done++; }
+    });
+    renderHops();
+    toast(done ? `已替换 <b>${done}</b> 项酒花（用量按 α-酸等量折算）` : '没有可替换的同类进口酒花');
+  } else if (kind === '酵母'){
+    setYeast(toId); renderYeastSelect(); refresh();
+    toast(`酵母已切换为 <b>${escapeHtml(yeastById(toId).n)}</b>`);
+  }
+}
+
+/* 导出 */
+function recipeJSON(){
+  const r = window.__r || compute(S);
+  const st = styleById(S.styleId);
+  return {
+    platform:'麦工坊 BrewLab', generated:new Date().toISOString(),
+    style:{ id:st.id, cn:st.cn, en:st.n, family:st.fam },
+    batch:S.batch, water:S.water, process:S.process,
+    malts:S.malts.map(m => ({ '原料':m.n, '厂牌':m.b, '产地':ORIGIN_LABEL[m.o], '用量_kg':m.qty, '色度_EBC':m.c, '提取率_pct':m.e })),
+    sugars:S.sugars.map(s => ({ '原料':s.n, '产地':ORIGIN_LABEL[s.o], '用量_kg':s.qty, '提取率_pct':s.e, '可发酵性_pct':s.fer })),
+    hops:S.hops.map(h => ({ '品种':h.n, '产地':ORIGIN_LABEL[h.o], '用量_g':h.qty, 'alpha酸_pct':h.aa,
+                            '添加方式':ADD_METHODS[h.method]?ADD_METHODS[h.method].label:h.method, '时间':h.time })),
+    yeast:{ '菌株':S.yeastRef.n, '厂牌':S.yeastRef.b, '产地':ORIGIN_LABEL[S.yeastRef.o], '学名':S.yeastRef.sp,
+            '接种量_g_per_L':S.pitch, '发酵温度_C':S.temp, '表观发酵度_pct':S.atten },
+    results:{
+      '原麦汁浓度_SG':+r.OG.toFixed(4), '麦汁浓度_Plato':+r.ogP.toFixed(2),
+      '终点比重_SG':+r.FG.toFixed(4), '酒精度_ABV':+r.ABV.toFixed(2),
+      '苦度_IBU':+r.ibu.toFixed(1), '色度_EBC':+r.EBC.toFixed(1), '色度_SRM':+r.SRM.toFixed(1),
+      '苦度平衡比_BU_GU':+r.bugu.toFixed(3), '表观发酵度_pct':+r.ADFreal.toFixed(1), '真实发酵度_pct':+r.RDF.toFixed(1),
+      '糖化用水_L':+r.mashWater.toFixed(1), '洗糟水_L':+r.sparge.toFixed(1), '煮沸前体积_L':+r.preBoilV.toFixed(2),
+      '湿麦糟产出_kg':+r.wetBsg.toFixed(1)
+    }
+  };
+}
+function recipeText(){
+  const d = recipeJSON(), st = styleById(S.styleId);
+  const L = [];
+  L.push(`# ${st.cn}（${st.n}）酿造配方单`);
+  L.push('');
+  L.push(`> 由麦工坊 BrewLab 生成 · ${new Date().toLocaleString('zh-CN')}`);
+  L.push('');
+  L.push('## 一、批次参数');
+  L.push(`- 成品体积：${S.batch.volume} L`);
+  L.push(`- 糖化效率：${S.batch.efficiency}%`);
+  L.push(`- 煮沸时长：${S.batch.boil} min，蒸发强度 ${S.batch.evap}%/h`);
+  L.push(`- 糖化料水比：${S.batch.ratio} L/kg，麦糟吸水 ${S.batch.absorb} L/kg`);
+  L.push('');
+  L.push('## 二、目标风格（BJCP 2021）');
+  L.push(`- ${st.cn} / ${st.n}`);
+  L.push(`- OG ${st.og[0].toFixed(3)}–${st.og[1].toFixed(3)}｜FG ${st.fg[0].toFixed(3)}–${st.fg[1].toFixed(3)}｜ABV ${st.abv[0]}–${st.abv[1]}%｜IBU ${st.ibu[0]}–${st.ibu[1]}｜SRM ${st.srm[0]}–${st.srm[1]}`);
+  L.push('');
+  L.push('## 三、原料配比');
+  L.push('### 麦芽与谷物');
+  L.push('| 原料 | 厂牌 | 产地 | 用量 | 色度 | 提取率 |');
+  L.push('|---|---|---|---|---|---|');
+  S.malts.forEach(m => L.push(`| ${m.n} | ${m.b} | ${ORIGIN_LABEL[m.o]} | ${m.qty} kg | ${m.c} EBC | ${m.e}% |`));
+  if (S.sugars.length){
+    L.push('');
+    L.push('### 糖与辅料');
+    L.push('| 原料 | 产地 | 用量 | 提取率 | 可发酵性 |');
+    L.push('|---|---|---|---|---|');
+    S.sugars.forEach(s => L.push(`| ${s.n} | ${ORIGIN_LABEL[s.o]} | ${s.qty} kg | ${s.e}% | ${s.fer}% |`));
+  }
+  L.push('');
+  L.push('### 酒花');
+  L.push('| 品种 | 产地 | 用量 | α-酸 | 添加方式 | 时间 |');
+  L.push('|---|---|---|---|---|---|');
+  S.hops.forEach(h => L.push(`| ${h.n} | ${ORIGIN_LABEL[h.o]} | ${h.qty} g | ${h.aa}% | ${ADD_METHODS[h.method]?ADD_METHODS[h.method].label:h.method} | ${h.method==='dryhop'?h.time+' 天':h.time+' min'} |`));
+  L.push('');
+  L.push('### 酵母');
+  L.push(`- ${S.yeastRef.n}（${S.yeastRef.b}，${ORIGIN_LABEL[S.yeastRef.o]}）`);
+  L.push(`- 学名：${S.yeastRef.sp}，${S.yeastRef.form}发酵，絮凝性 ${S.yeastRef.floc}`);
+  L.push(`- 接种量：${S.pitch} g/L（${d.results ? '' : ''}${(S.pitch*S.batch.volume).toFixed(0)} g）`);
+  L.push(`- 主发酵温度：${S.temp}℃（菌株适用 ${S.yeastRef.tmp[0]}–${S.yeastRef.tmp[1]}℃）`);
+  L.push(`- 设定表观发酵度：${S.atten}%`);
+  L.push('');
+  L.push('## 四、工艺路线');
+  L.push(`1. 糖化：52℃ 蛋白质休止（可选 10 min）→ ${S.process.mashTemp}℃ 保温 ${S.process.mashTime} min → ${S.process.mashOut}℃ 出醪`);
+  L.push(`2. 洗糟：76℃ 热水 ${window.__r?window.__r.sparge.toFixed(1):'—'} L，分 2 次淋洗至煮沸前体积 ${window.__r?window.__r.preBoilV.toFixed(1):'—'} L`);
+  L.push(`3. 煮沸：${S.batch.boil} min，按上表时间点投放酒花`);
+  L.push(`4. 回旋：85℃ 静置 20 min，投入回旋酒花`);
+  L.push(`5. 冷却接种：冷却至 ${S.temp}℃ 接种 ${(S.pitch*S.batch.volume).toFixed(0)} g 酵母`);
+  L.push(`6. 主发酵：${S.temp}℃ 维持 5–10 天，比重连续两天不变后升温 2–3℃ 做双乙酰还原`);
+  L.push(`7. 后熟与碳化：降温至 0–4℃ 后熟，按目标碳酸化水平碳化`);
+  L.push('');
+  L.push('## 五、预测指标');
+  const R = d.results;
+  L.push(`- 原麦汁浓度：${R['原麦汁浓度_SG']}（${R['麦汁浓度_Plato']} °P）`);
+  L.push(`- 终点比重：${R['终点比重_SG']}`);
+  L.push(`- 酒精度：${R['酒精度_ABV']}% ABV`);
+  L.push(`- 苦度：${R['苦度_IBU']} IBU（BU:GU ${R['苦度平衡比_BU_GU']}）`);
+  L.push(`- 色度：${R['色度_EBC']} EBC / SRM ${R['色度_SRM']}`);
+  L.push(`- 表观发酵度 ${R['表观发酵度_pct']}%，真实发酵度 ${R['真实发酵度_pct']}%`);
+  L.push(`- 用水：糖化 ${R['糖化用水_L']} L + 洗糟 ${R['洗糟水_L']} L`);
+  L.push(`- 湿麦糟产出（估算）：约 ${R['湿麦糟产出_kg']} kg`);
+  L.push('');
+  L.push('---');
+  L.push('计算口径：OG 用提取率法；IBU 用 Tinseth 模型（回旋按等效 5 min 煮沸计，干投不计入苦度）；');
+  L.push('色度用 Morey 模型；ABV 用 Balling 修正式；RDF ≈ ADF × 0.819。原料参数取自厂商公开资料与行业区间，实际以当批检测报告为准。');
+  return L.join('\n');
+}
+function download(name, text, mime){
+  const blob = new Blob([text], { type:(mime||'text/plain')+';charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+
+/* ---- 导出菜单 ---- */
+function toggleExportMenu(force){
+  let menu = $('#exportMenu');
+  if (menu){ if (force === false || !menu.hidden) { menu.remove(); return; } menu.remove(); }
+  menu = document.createElement('div');
+  menu.id = 'exportMenu';
+  menu.style.cssText = 'position:fixed;z-index:150;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow-2);padding:6px;min-width:206px';
+  const rect = $('#btnExport').getBoundingClientRect();
+  menu.style.top = (rect.bottom + 6) + 'px';
+  menu.style.left = Math.max(8, Math.min(rect.right - 206, window.innerWidth - 214)) + 'px';
+  menu.innerHTML = `
+    <button class="btn btn--ghost btn--block" style="justify-content:flex-start" data-exp="json">导出 JSON 配方数据</button>
+    <button class="btn btn--ghost btn--block" style="justify-content:flex-start" data-exp="md">导出酿造配方单（.md）</button>
+    <button class="btn btn--ghost btn--block" style="justify-content:flex-start" data-exp="copy">复制配方单到剪贴板</button>
+    <button class="btn btn--ghost btn--block" style="justify-content:flex-start" data-exp="print">打印 / 另存为 PDF</button>`;
+  document.body.appendChild(menu);
+  const close = e => { if (!menu.contains(e.target) && e.target !== $('#btnExport')) { menu.remove(); document.removeEventListener('click', close, true); } };
+  setTimeout(() => document.addEventListener('click', close, true), 0);
+  menu.addEventListener('click', e => {
+    const b = e.target.closest('[data-exp]'); if (!b) return;
+    const kind = b.dataset.exp;
+    const st = styleById(S.styleId);
+    const slug = `${st.cn}_${S.batch.volume}L_${new Date().toISOString().slice(0,10)}`;
+    if (kind === 'json'){ download(slug+'.json', JSON.stringify(recipeJSON(), null, 2), 'application/json'); toast('已导出 <b>JSON</b> 配方数据'); }
+    if (kind === 'md'){ download(slug+'.md', recipeText(), 'text/markdown'); toast('已导出 <b>酿造配方单</b>'); }
+    if (kind === 'copy'){
+      const t = recipeText();
+      (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject())
+        .then(() => toast('配方单已复制到剪贴板'))
+        .catch(() => { const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); toast('配方单已复制到剪贴板'); });
+    }
+    if (kind === 'print') window.print();
+    menu.remove();
+  });
+}
+
+/* ---- 绑定 ---- */
+function bind(){
+  /* 顶部 */
+  $('#btnExport').addEventListener('click', e => { e.stopPropagation(); toggleExportMenu(); });
+  $('#btnReset').addEventListener('click', () => { applyTemplate(TEMPLATES[1]); });
+  $('#btnTemplate').addEventListener('click', () => openTemplates());
+  $('#btnCalHop').addEventListener('click', calHop);
+  $('#btnCalGrist').addEventListener('click', calGrist);
+  $('#btnHelp').addEventListener('click', () => {
+    const h = $('#helpBody');
+    h.hidden = !h.hidden;
+    $('#btnHelp').textContent = h.hidden ? '展开' : '收起';
+  });
+
+  /* 数值输入统一处理 */
+  const bindNum = (id, path, after) => {
+    const el = $('#'+id);
+    el.addEventListener('input', () => {
+      const v = num(el.value);
+      if (path.length === 2) S[path[0]][path[1]] = v; else S[path[0]] = v;
+      if (after) after(v);
+      refresh();
+    });
+  };
+  bindNum('inVolume',['batch','volume']);
+  bindNum('inEfficiency',['batch','efficiency'], v => { $('#rgEfficiency').value = clamp(v,50,92); $('#effNote').textContent = v>=85?'高效设备':v>=75?'优化良好的设备':v>=65?'家酿设备常规':'偏低，检查碾磨与洗糟'; });
+  bindNum('inBoil',['batch','boil']);
+  bindNum('inEvap',['batch','evap']);
+  bindNum('inRatio',['batch','ratio']);
+  bindNum('inAbsorb',['batch','absorb']);
+  bindNum('inSO4',['water','so4']);
+  bindNum('inCl',['water','cl']);
+  bindNum('inAlk',['water','alk']);
+  bindNum('inCa',['water','ca']);
+  bindNum('inMashTemp',['process','mashTemp']);
+  bindNum('inMashTime',['process','mashTime']);
+  bindNum('inMashOut',['process','mashOut']);
+  bindNum('inPitch',['pitch']);
+  bindNum('inAtten',['atten']);
+  bindNum('rgTemp',['temp'], v => { $('#rgTemp').value = v; });
+
+  $('#rgEfficiency').addEventListener('input', e => { S.batch.efficiency = num(e.target.value); $('#inEfficiency').value = S.batch.efficiency; $('#effNote').textContent = S.batch.efficiency>=85?'高效设备':S.batch.efficiency>=75?'优化良好的设备':S.batch.efficiency>=65?'家酿设备常规':'偏低，检查碾磨与洗糟'; refresh(); });
+  $('#rgTemp').addEventListener('input', e => { S.temp = num(e.target.value); refresh(); });
+
+  /* 步进器 */
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-step]'); if (!b) return;
+    const el = $('#'+b.dataset.for);
+    const step = num(b.dataset.step);
+    const cur = num(el.value);
+    el.value = clamp(cur + step, num(el.min)||0, num(el.max)||9999);
+    el.dispatchEvent(new Event('input', { bubbles:true }));
+  });
+
+  /* 添加行 */
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-add]'); if (!b) return;
+    addRow(b.dataset.add);
+  });
+
+  /* 原料库添加 */
+  document.addEventListener('click', e => {
+    const it = e.target.closest('[data-add-lib]'); if (!it) return;
+    const cat = it.dataset.addLib, id = it.dataset.id;
+    if (cat === 'malt')  S.malts.push(rowFromMalt(id, 1));
+    if (cat === 'sugar') S.sugars.push(rowFromSugar(id, 0.3));
+    if (cat === 'hop')   S.hops.push(rowFromHop(id, 20, 'boil', 60));
+    if (cat === 'yeast'){ setYeast(id); renderYeastSelect(); }
+    if (cat === 'malt')  renderMalts();
+    if (cat === 'sugar') renderSugars();
+    if (cat === 'hop')   renderHops();
+    refresh();
+    const nm = (cat==='yeast'? yeastById(id) : cat==='malt'? maltById(id) : cat==='sugar'? sugarById(id) : hopById(id)).n;
+    toast(cat==='yeast' ? `酵母已切换为 <b>${escapeHtml(nm)}</b>` : `已添加 <b>${escapeHtml(nm)}</b>`);
+  });
+
+  /* 替换建议 */
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-swap]'); if (!b) return;
+    doSwap(b.dataset.swap, b.dataset.to);
+  });
+
+  /* 风格与分段控件 */
+  $('#selStyle').addEventListener('change', e => { S.styleId = e.target.value; renderStyleSelect(); refresh(); });
+  $('#segFamily').addEventListener('click', e => {
+    const b = e.target.closest('button[data-fam]'); if (!b) return;
+    $$('#segFamily button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    styleFamFilter = b.dataset.fam;
+    const cur = styleById(S.styleId);
+    if (styleFamFilter !== 'all' && cur.fam !== styleFamFilter){
+      const first = STYLES.find(s => s.fam === styleFamFilter);
+      if (first) S.styleId = first.id;
+    }
+    renderStyleSelect(); refresh();
+  });
+  $('#segLibOrigin').addEventListener('click', e => {
+    const b = e.target.closest('button[data-origin]'); if (!b) return;
+    $$('#segLibOrigin button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    libFilter.origin = b.dataset.origin; renderLibrary();
+  });
+  $('#segLibCat').addEventListener('click', e => {
+    const b = e.target.closest('button[data-cat]'); if (!b) return;
+    $$('#segLibCat button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    libFilter.cat = b.dataset.cat; renderLibrary();
+  });
+  $('#libSearch').addEventListener('input', e => { libFilter.q = e.target.value; renderLibrary(); });
+
+  /* 表格 */
+  bindTable('#tblMalt tbody', 'malt', onCell);
+  bindTable('#tblSugar tbody', 'sugar', onCell);
+  bindTable('#tblHop tbody', 'hop', onCell);
+
+  /* 酵母 */
+  $('#selYeast').addEventListener('change', e => { setYeast(e.target.value); renderYeastSelect(); syncInputs(); refresh(); });
+
+  /* 移动端跳转 */
+  $$('.mobile-bar button').forEach(b => b.addEventListener('click', () => {
+    $$('.mobile-bar button').forEach(x => x.classList.toggle('on', x === b));
+    const el = document.getElementById(b.dataset.jump);
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 68, behavior:'smooth' });
+  }));
+
+  /* 键盘 */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape'){ const m = $('#exportMenu'); if (m) m.remove(); const t = $('#tplModal'); if (t) t.remove(); }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's'){ e.preventDefault(); $('#btnExport').click(); }
+  });
+}
+
+/* ---- 配方模板弹层 ---- */
+function openTemplates(){
+  const old = $('#tplModal'); if (old) old.remove();
+  const m = document.createElement('div');
+  m.id = 'tplModal';
+  m.style.cssText = 'position:fixed;inset:0;z-index:180;background:rgba(42,33,25,.34);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:18px';
+  m.innerHTML = `
+  <div style="background:var(--surface);border-radius:18px;max-width:820px;width:100%;max-height:84vh;overflow:auto;box-shadow:var(--shadow-2);border:1px solid var(--border)">
+    <div class="card__hd" style="position:sticky;top:0;z-index:2">
+      <h3 style="font-size:14.5px">配方模板库</h3><span class="spacer"></span>
+      <span class="badge badge--mute">${TEMPLATES.length} 套</span>
+      <button class="btn btn--ghost btn--icon" data-close="1" aria-label="关闭">×</button>
+    </div>
+    <div class="card__bd" style="display:grid;gap:11px">
+      ${TEMPLATES.map(t => {
+        const st = styleById(t.style);
+        return `<div class="libitem" data-tpl="${t.id}" style="cursor:pointer">
+          <div class="libitem__n">${escapeHtml(t.n)}
+            <span class="badge ${t.tag==='国产'?'badge--cn':'badge--amber'}">${t.tag}</span>
+            <span class="badge badge--mute">${escapeHtml(st.cn)}</span>
+          </div>
+          <span class="libitem__add">＋</span>
+          <div class="libitem__meta"><span>${escapeHtml(t.desc)}</span>
+            <span>OG 目标 <em>${st.og[0].toFixed(3)}–${st.og[1].toFixed(3)}</em></span>
+            <span>IBU <em>${st.ibu[0]}–${st.ibu[1]}</em></span>
+            <span>体积 <em>${t.batch.volume} L</em></span>
+          </div>
+        </div>`; }).join('')}
+    </div>
+  </div>`;
+  document.body.appendChild(m);
+  m.addEventListener('click', e => {
+    if (e.target === m || e.target.closest('[data-close]')){ m.remove(); return; }
+    const it = e.target.closest('[data-tpl]'); if (!it) return;
+    const t = TEMPLATES.find(x => x.id === it.dataset.tpl);
+    if (t){ m.remove(); applyTemplate(t); }
+  });
+}
+
+/* =========================================================================
+   8 · 启动
+   ========================================================================= */
+function boot(){
+  bind();
+  /* 支持通过 #tpl=t3 直接打开指定模板（便于分享与复现） */
+  const m = (location.hash || '').match(/tpl=([a-z0-9]+)/i);
+  const start = (m && TEMPLATES.find(t => t.id === m[1])) || TEMPLATES[1];
+  applyTemplate(start, true);   /* 默认：国产美式淡色艾尔 */
+  libFilter = { origin:'all', cat:'malt', q:'' };
+  renderLibrary();
+  $$('#segLibOrigin button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.origin === 'all')));
+  $$('#segLibCat button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.cat === 'malt')));
+  /* 视口变化后重算表格是否产生横向溢出（SVG 图表本身自适应，无需处理） */
+  let rzT = 0;
+  window.addEventListener('resize', () => { clearTimeout(rzT); rzT = setTimeout(syncTblHints, 120); });
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+else boot();
+
+})();
+</script>
+</body>
+</html>
